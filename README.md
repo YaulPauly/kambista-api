@@ -80,11 +80,17 @@ are:
 - `exchange-rates`: SUNAT exchange-rate retrieval and persistence.
 - `transactions`: exchange requests and transaction history.
 - `shared`: cross-cutting contracts and reusable domain utilities.
-- `platform`: NestJS, Express, MongoDB and external-service adapters.
+- `platform`: NestJS bootstrap, configuration and global HTTP concerns.
 
-These modules and their business functionality will be introduced in future
-changes. Architectural decisions will be recorded as ADRs with Mermaid
-diagrams.
+The module boundaries, dependency rules and source skeleton are documented in
+the architecture branch. Business functionality will be introduced in future
+changes.
+
+- [ADR 0001: Modular monolith](./docs/adr/0001-modular-monolith.md)
+- [ADR 0002: Hexagonal architecture and DDD boundaries](./docs/adr/0002-hexagonal-ddd-boundaries.md)
+- [ADR 0003: Module boundaries](./docs/adr/0003-module-boundaries.md)
+- [System context diagram](./docs/diagrams/system-context.md)
+- [Module boundaries diagram](./docs/diagrams/module-boundaries.md)
 
 ## Development workflow
 
