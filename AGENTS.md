@@ -97,6 +97,16 @@ secuenciales. Utiliza diagramas Mermaid en `docs/diagrams/` cuando aclaren
 límites o flujos. Mantén el README actualizado y diferencia el comportamiento
 implementado del trabajo planificado.
 
+## Docker y CI
+
+- El Dockerfile debe utilizar multistage builds, `npm ci` y un usuario no root.
+- No copies archivos `.env`, secretos, `node_modules`, tests ni documentación a
+  la imagen final.
+- Docker Compose es para desarrollo local; no debe contener credenciales reales.
+- GitHub Actions debe tener permisos mínimos y ejecutar los mismos quality gates
+  definidos para el desarrollo local.
+- El workflow no debe publicar imágenes ni desplegar recursos en esta etapa.
+
 ## Flujo de Git
 
 - Utiliza GitHub Flow: crea una rama enfocada desde `main` y fusiónala mediante

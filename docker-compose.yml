@@ -1,0 +1,35 @@
+services:
+  api:
+    build:
+      context: .
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      MONGODB_URI: mongodb://mongo:27017/kambista
+    ports:
+      - '${API_PORT:-3000}:3000'
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:7.0
+    environment:
+      MONGO_INITDB_DATABASE: kambista
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'mongosh --quiet --eval "db.adminCommand(''ping'').ok" | grep 1',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
