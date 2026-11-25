@@ -1,36 +1,38 @@
-# ADR 0003: Define Initial Module Boundaries
+# ADR 0003: Definir los límites iniciales de los módulos
 
-- Status: Accepted
-- Date: 2026-11-25
+- Estado: Aceptado
+- Fecha: 2026-11-25
 
-## Decision
+## Decisión
 
-The initial modules own the following responsibilities:
+Los módulos iniciales serán responsables de lo siguiente:
 
-| Module | Owns |
-| --- | --- |
-| `identity` | Users, credentials, authentication, roles and authorization policies. |
-| `currencies` | Supported currencies and valid currency-pair rules. |
-| `exchange-rates` | Exchange-rate provider integration, stored rates, freshness and cache policy. |
-| `transactions` | Conversion use cases, transaction records and history queries. |
-| `shared` | Small cross-cutting primitives that have demonstrated reuse. |
-| `platform` | NestJS bootstrap, configuration and global HTTP concerns. |
+| Módulo           | Responsabilidad                                                              |
+| ---------------- | ---------------------------------------------------------------------------- |
+| `identity`       | Usuarios, credenciales, autenticación, roles y políticas de autorización.    |
+| `currencies`     | Monedas soportadas y reglas para pares de divisas válidos.                   |
+| `exchange-rates` | Integración con el proveedor, tipos de cambio almacenados, vigencia y caché. |
+| `transactions`   | Casos de uso de conversión, registros e historial de transacciones.          |
+| `shared`         | Primitives cross-cutting pequeñas y con reutilización demostrada.            |
+| `platform`       | Arranque de NestJS, configuración y concerns HTTP globales.                  |
 
-`transactions` may consume an exchange-rate application contract and an
-authenticated-user context. It must not query the identity or exchange-rate
-storage directly. `identity` owns authorization decisions; transport
-controllers only enforce the boundary and delegate to application use cases.
+`transactions` podrá consumir un contrato de aplicación de `exchange-rates` y
+un contexto del usuario autenticado. No debe consultar directamente el storage
+de `identity` o `exchange-rates`. `identity` es dueño de las decisiones de
+autorización; los controllers de transporte solo aplican el boundary y delegan
+en casos de uso de aplicación.
 
-## Rationale
+## Justificación
 
-These boundaries reflect the responsibilities described in the original
-technical challenge while avoiding a premature split into deployable services.
-They also keep provider, persistence and transport details outside the core
-business rules.
+Estos límites reflejan las responsabilidades descritas en la prueba técnica
+original y evitan dividir prematuramente el sistema en servicios desplegables.
+También mantienen los detalles de proveedores, persistencia y transporte fuera
+de las reglas principales del negocio.
 
-## Consequences
+## Consecuencias
 
-- Each module can evolve independently within the same process.
-- Cross-module contracts become explicit and testable.
-- New shared abstractions require evidence of reuse rather than convenience.
-- Changes that move ownership between modules require an ADR update.
+- Cada módulo puede evolucionar de forma independiente dentro del mismo
+  proceso.
+- Los contratos entre módulos son explícitos y comprobables.
+- Las nuevas abstracciones shared requieren evidencia de reutilización.
+- Los cambios de ownership entre módulos requieren actualizar un ADR.

@@ -1,29 +1,30 @@
-# Repository Guidelines
+# Guía del repositorio
 
-## Current scope
+## Alcance actual
 
-This repository is the backend for the Kambista technical challenge. The
-current branch establishes the architecture baseline only. Business behavior
-must be implemented in the dedicated roadmap branches.
+Este repositorio contiene el backend de la prueba técnica de Kambista. La rama
+actual establece únicamente la base de la plataforma. La lógica de negocio debe
+implementarse en las ramas correspondientes del roadmap.
 
-Do not add MongoDB, authentication, Docker, CI/CD, or external-provider
-integrations to `chore/architecture`.
+No agregues MongoDB, autenticación, Docker, CI/CD ni integraciones con
+proveedores externos a `chore/architecture`.
 
-## Architecture
+## Arquitectura
 
-The backend is a modular monolith using NestJS with Express as the HTTP
-adapter. The planned modules are:
+El backend es un monolito modular construido con NestJS y Express como
+adaptador HTTP. Los módulos planificados son:
 
-- `identity`: users, authentication, roles and authorization policies.
-- `currencies`: supported currencies and currency-pair rules.
-- `exchange-rates`: exchange-rate retrieval, persistence, freshness and cache
-  policies.
-- `transactions`: conversion use cases and transaction history.
-- `shared`: small, genuinely cross-cutting primitives and contracts.
-- `platform`: application bootstrap, configuration and global HTTP concerns.
+- `identity`: usuarios, autenticación, roles y políticas de autorización.
+- `currencies`: monedas soportadas y reglas de pares de divisas.
+- `exchange-rates`: obtención, persistencia, vigencia y caché del tipo de cambio.
+- `transactions`: casos de uso de conversión e historial de transacciones.
+- `shared`: primitives y contratos cross-cutting pequeños y realmente
+  reutilizables.
+- `platform`: arranque de la aplicación, configuración y concerns HTTP globales.
 
-Each business module owns its domain and application behavior. A future module
-should prefer this shape when it has real behavior:
+Cada módulo de negocio es dueño de su dominio y comportamiento de aplicación.
+Cuando un módulo tenga comportamiento real, debe seguir preferentemente esta
+estructura:
 
 ```text
 <module>/
@@ -33,51 +34,52 @@ should prefer this shape when it has real behavior:
 └── infrastructure/
 ```
 
-Module-specific infrastructure can add focused folders such as `http`,
-`persistence` or `providers` only when a concrete adapter is introduced. Do
-not create generic layers, repositories, or utilities before a concrete use
-case needs them.
+La infraestructura específica de un módulo puede añadir carpetas como `http`,
+`persistence` o `providers` únicamente cuando se introduzca un adapter concreto.
+No crees capas, repositories o utilidades genéricas antes de que un caso de uso
+real las necesite.
 
-The architecture branch versions the initial skeleton with these additional
-technical areas:
+La estructura base incluye además:
 
-- `shared/` for proven cross-cutting contracts and primitives.
-- `platform/config` and `platform/http` for technical composition and global
-  HTTP behavior.
+- `shared/` para contratos y primitives cross-cutting con reutilización
+  demostrada.
+- `platform/config` y `platform/http` para composición técnica y comportamiento
+  HTTP global.
 
-These folders contain placeholders only until their roadmap branches add real
-implementations.
+Estas carpetas contienen placeholders hasta que las ramas del roadmap añadan
+implementaciones reales.
 
-## Dependency rules
+## Reglas de dependencias
 
-- Domain code is framework-agnostic and must not import NestJS, Express,
-  MongoDB, HTTP clients or environment access.
-- Application services orchestrate use cases through explicit ports.
-- Inbound HTTP adapters live in the owning module's `infrastructure/http`.
-- Outbound adapters implement application output ports in the owning module's
-  `infrastructure` area.
-- `platform` wires dependencies and configures global concerns; it must not
-  contain domain business rules.
-- Modules must not access another module's persistence models directly.
-- `shared` is not a dumping ground. Promote code there only after reuse is
-  demonstrated.
+- El código de dominio debe ser independiente de frameworks y no importar
+  NestJS, Express, MongoDB, clientes HTTP ni variables de entorno.
+- Los servicios de aplicación orquestan casos de uso mediante ports explícitos.
+- Los adapters HTTP de entrada viven en `infrastructure/http` del módulo dueño.
+- Los adapters de salida implementan los ports de aplicación dentro de
+  `infrastructure` del módulo dueño.
+- `platform` conecta dependencias y configura concerns globales; no contiene
+  reglas de negocio.
+- Un módulo no debe acceder directamente a los modelos de persistencia de otro.
+- `shared` no es un cajón de sastre. El código solo debe llegar allí cuando
+  exista reutilización demostrada.
 
-## Naming and code quality
+## Nombres y calidad de código
 
-- Use English names for code, folders, classes, methods and public contracts.
-- Keep controllers and transport DTOs thin; validation belongs at the input
-  boundary and business invariants belong in the domain/application layers.
-- Prefer explicit types and keep TypeScript strict mode enabled.
-- Do not introduce import aliases until there is a documented need.
-- Avoid leaking passwords, tokens, hashes or provider credentials into logs or
+- Utiliza nombres en inglés para código, carpetas, clases, métodos y contratos
+  públicos.
+- Mantén controllers y DTOs de transporte delgados; la validación pertenece al
+  boundary de entrada y las invariantes al dominio o a la aplicación.
+- Mantén TypeScript en modo strict y prefiere tipos explícitos.
+- No introduzcas aliases de importación hasta documentar una necesidad real.
+- No expongas passwords, tokens, hashes ni credenciales de proveedores en logs o
   responses.
 
-## Testing
+## Pruebas
 
-- Domain and application behavior should have focused unit tests.
-- Adapter behavior should have integration tests when infrastructure exists.
-- E2E tests belong in `test/` and should cover public HTTP contracts.
-- Run the relevant checks before opening a pull request:
+- El dominio y la aplicación deben tener unit tests enfocados.
+- Los adapters deben tener integration tests cuando exista infraestructura.
+- Las pruebas E2E pertenecen a `test/` y deben cubrir contratos HTTP públicos.
+- Ejecuta estas validaciones antes de abrir un pull request:
 
   ```bash
   npm run typecheck
@@ -88,16 +90,17 @@ implementations.
   npm run test:e2e
   ```
 
-## Documentation
+## Documentación
 
-Architecture decisions belong in `docs/adr/` using sequential filenames. Use
-Mermaid diagrams in `docs/diagrams/` when they clarify boundaries or flows.
-Keep the README accurate: distinguish implemented behavior from planned work.
+Las decisiones arquitectónicas deben vivir en `docs/adr/` con nombres
+secuenciales. Utiliza diagramas Mermaid en `docs/diagrams/` cuando aclaren
+límites o flujos. Mantén el README actualizado y diferencia el comportamiento
+implementado del trabajo planificado.
 
-## Git workflow
+## Flujo de Git
 
-- Use GitHub Flow: create a focused branch from `main` and merge through a
-  reviewed pull request.
-- Use Conventional Commits, for example `chore: define architecture ADRs`.
-- Do not commit generated output, secrets, local environment files or
-  dependency directories.
+- Utiliza GitHub Flow: crea una rama enfocada desde `main` y fusiónala mediante
+  un pull request revisado.
+- Utiliza Conventional Commits, por ejemplo `chore: define architecture ADRs`.
+- No versiones output generado, secretos, archivos de entorno locales ni
+  directorios de dependencias.

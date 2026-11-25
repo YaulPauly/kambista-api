@@ -1,60 +1,74 @@
-# Kambista API
+# API de Kambista
 
-Backend API for the Kambista technical challenge. The project is currently an
-initial NestJS scaffold and will evolve into a modular monolith for a currency
-exchange platform.
+API backend para la prueba técnica de Kambista. Actualmente el proyecto es un
+scaffold inicial de NestJS y evolucionará hacia un monolito modular para una
+plataforma de cambio de divisas.
 
-## Current status
+## Estado actual
 
-The repository currently provides:
+El repositorio actualmente incluye:
 
-- NestJS running with Express as the HTTP adapter.
-- A `GET /` endpoint that returns `Hello World!`.
-- A unit test for the root controller.
-- An end-to-end test for the root endpoint.
-- TypeScript, ESLint and Prettier configuration.
+- NestJS ejecutándose con Express como adaptador HTTP.
+- Un endpoint `GET /` que devuelve `Hello World!`.
+- Una prueba unitaria para el controller raíz.
+- Una prueba end-to-end para el endpoint raíz.
+- Configuración centralizada del entorno con validación mediante Joi.
+- Validación global de requests, headers de seguridad con Helmet, CORS
+  controlado y logging estructurado de requests HTTP.
+- Configuración de TypeScript, ESLint y Prettier.
 
-The following are not implemented yet: MongoDB integration, authentication,
-JWT and roles, currency exchange operations, SUNAT exchange-rate integration,
-Swagger documentation, Docker and CI workflows.
+Todavía no están implementados: los adaptadores de conexión a MongoDB,
+autenticación, JWT y roles, operaciones de cambio de divisas, integración con
+el tipo de cambio de SUNAT, documentación Swagger, Docker ni workflows de CI.
 
-## Requirements
+## Requisitos
 
 - Node.js `>=20.11.0`.
 - npm `>=10.2.0`.
 
-This project uses npm exclusively. `package-lock.json` is committed to keep
-dependency installation reproducible.
+El proyecto utiliza exclusivamente npm. `package-lock.json` está versionado
+para mantener reproducibles las instalaciones de dependencias.
 
-## Setup
+## Configuración inicial
 
-Install the locked dependencies:
+Instala las dependencias bloqueadas y crea el archivo local de entorno:
 
 ```bash
 npm ci
+cp .env.example .env
 ```
 
-No environment variables or external services are required by the current
-scaffold.
+El scaffold actual no requiere un servicio externo. `MONGODB_URI` se valida
+como configuración futura de persistencia, pero no se utiliza hasta que un
+módulo incorpore un adaptador concreto de MongoDB.
 
-## Run the application
+### Variables de entorno
+
+| Variable      | Requerida | Descripción                                                             |
+| ------------- | --------- | ----------------------------------------------------------------------- |
+| `NODE_ENV`    | No        | `development`, `test` o `production`; por defecto `development`.        |
+| `PORT`        | No        | Puerto HTTP; por defecto `3000`.                                        |
+| `CORS_ORIGIN` | No        | Orígenes permitidos separados por comas; vacío desactiva CORS.          |
+| `MONGODB_URI` | No        | URI de MongoDB reservada para la futura infraestructura de los módulos. |
+
+## Ejecutar la aplicación
 
 ```bash
-# development
+# desarrollo
 npm run start
 
-# watch mode
+# modo watch
 npm run start:dev
 
-# production build
+# build de producción
 npm run build
 npm run start:prod
 ```
 
-The application listens on port `3000` by default. The `PORT` environment
-variable can be used by the current scaffold to select another port.
+La aplicación escucha en el puerto `3000` por defecto. El scaffold actual
+permite seleccionar otro puerto mediante la variable `PORT`.
 
-## Validation and tests
+## Validaciones y pruebas
 
 ```bash
 npm run typecheck
@@ -66,44 +80,44 @@ npm run test:e2e
 npm audit --omit=dev
 ```
 
-`npm run lint:fix` and `npm run format` are available for intentional local
-autofixes.
+`npm run lint:fix` y `npm run format` están disponibles para autocorrecciones
+locales intencionales.
 
-## Planned architecture
+## Arquitectura planificada
 
-The planned backend is a modular monolith following hexagonal architecture,
-Clean Architecture, DDD and SOLID principles. The initial module boundaries
-are:
+El backend seguirá un monolito modular basado en arquitectura hexagonal, Clean
+Architecture, DDD y SOLID. Los límites iniciales de los módulos son:
 
-- `identity`: users, authentication and roles.
-- `currencies`: supported currencies and currency rules.
-- `exchange-rates`: SUNAT exchange-rate retrieval and persistence.
-- `transactions`: exchange requests and transaction history.
-- `shared`: cross-cutting contracts and reusable domain utilities.
-- `platform`: NestJS bootstrap, configuration and global HTTP concerns.
+- `identity`: usuarios, autenticación y roles.
+- `currencies`: monedas soportadas y reglas de pares de divisas.
+- `exchange-rates`: obtención y persistencia del tipo de cambio de SUNAT.
+- `transactions`: solicitudes de cambio e historial de transacciones.
+- `shared`: contratos y utilidades cross-cutting reutilizables.
+- `platform`: arranque de NestJS, configuración y concerns HTTP globales.
 
-The module boundaries, dependency rules and source skeleton are documented in
-the architecture branch. Business functionality will be introduced in future
-changes.
+Los límites de los módulos, las reglas de dependencias y el skeleton de código
+están documentados en los siguientes recursos. La funcionalidad de negocio se
+incorporará en cambios posteriores.
 
-- [ADR 0001: Modular monolith](./docs/adr/0001-modular-monolith.md)
-- [ADR 0002: Hexagonal architecture and DDD boundaries](./docs/adr/0002-hexagonal-ddd-boundaries.md)
-- [ADR 0003: Module boundaries](./docs/adr/0003-module-boundaries.md)
-- [System context diagram](./docs/diagrams/system-context.md)
-- [Module boundaries diagram](./docs/diagrams/module-boundaries.md)
+- [ADR 0001: Monolito modular](./docs/adr/0001-modular-monolith.md)
+- [ADR 0002: Límites de arquitectura hexagonal y DDD](./docs/adr/0002-hexagonal-ddd-boundaries.md)
+- [ADR 0003: Límites de los módulos](./docs/adr/0003-module-boundaries.md)
+- [ADR 0004: Fundamentos de la plataforma](./docs/adr/0004-platform-foundation.md)
+- [Diagrama de contexto del sistema](./docs/diagrams/system-context.md)
+- [Diagrama de límites de los módulos](./docs/diagrams/module-boundaries.md)
 
-## Development workflow
+## Flujo de desarrollo
 
-The project follows GitHub Flow and Conventional Commits. Changes should be
-reviewed and all relevant validations should pass before creating a commit or
-opening a pull request.
+El proyecto sigue GitHub Flow y Conventional Commits. Los cambios deben ser
+revisados y todas las validaciones relevantes deben pasar antes de crear un
+commit o abrir un pull request.
 
-## Original challenge
+## Prueba técnica original
 
-The original requirements are available in
+Los requerimientos originales están disponibles en
 [`prueba -tecnica.md`](./prueba%20-tecnica.md).
 
-## License
+## Licencia
 
-Package publishing is disabled via `private: true`, and no project license has
-been selected yet (`UNLICENSED`).
+La publicación del paquete está deshabilitada mediante `private: true` y el
+proyecto todavía no tiene una licencia seleccionada (`UNLICENSED`).
