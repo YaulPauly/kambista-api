@@ -1,8 +1,8 @@
-# Source structure
+# Estructura de `src`
 
-This branch establishes the source tree for the modular monolith. The folders
-are intentionally empty: implementation belongs to the roadmap branches and
-must follow the rules in the root `AGENTS.md` and the architecture ADRs.
+Esta rama establece el árbol fuente del monolito modular. Las carpetas están
+intencionalmente vacías: la implementación pertenece a las ramas del roadmap y
+debe seguir las reglas de `AGENTS.md` y de los ADRs de arquitectura.
 
 ```text
 src/
@@ -34,5 +34,5 @@ src/
     └── http/
 ```
 
-The existing scaffold files remain at the `src/` root until the platform and
-feature branches introduce their replacements deliberately.
+Los archivos del scaffold actual permanecen en la raíz de `src/` hasta que las
+ramas de plataforma y features introduzcan sus reemplazos deliberadamente.

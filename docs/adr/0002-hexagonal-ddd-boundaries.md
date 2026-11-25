@@ -1,40 +1,39 @@
-# ADR 0002: Apply Hexagonal Architecture and DDD Boundaries
+# ADR 0002: Aplicar arquitectura hexagonal y límites DDD
 
-- Status: Accepted
-- Date: 2026-11-25
+- Estado: Aceptado
+- Fecha: 2026-11-25
 
-## Context
+## Contexto
 
-The domain must remain testable and independent from NestJS, Express, MongoDB
-and the SUNAT provider. The challenge also evaluates separation of
-responsibilities, dependency inversion and maintainability.
+El dominio debe poder probarse y mantenerse independiente de NestJS, Express,
+MongoDB y el proveedor SUNAT. La prueba también evalúa separación de
+responsabilidades, inversión de dependencias y mantenibilidad.
 
-## Decision
+## Decisión
 
-Each business module will separate:
+Cada módulo de negocio separará:
 
-- `domain`: entities, value objects, domain services and invariants.
-- `application`: use cases and input/output ports.
-- `infrastructure`: inbound HTTP adapters and outbound implementations for the
-  module.
+- `domain`: entities, value objects, domain services e invariantes.
+- `application`: casos de uso y ports de entrada/salida.
+- `infrastructure`: adapters HTTP de entrada e implementaciones de salida del
+  módulo.
 
-Dependencies point inward. The domain depends on no framework. Application
-logic depends on ports, while infrastructure depends on application
-contracts. NestJS dependency injection is used at composition boundaries and
-must not become a domain dependency.
+Las dependencias apuntan hacia dentro. El dominio no depende de ningún
+framework. La aplicación depende de ports y la infraestructura depende de los
+contratos de aplicación. La inyección de dependencias de NestJS se utilizará en
+los límites de composición y no se convertirá en una dependencia del dominio.
 
-## Consequences
+## Consecuencias
 
-- Domain and application use cases can be unit-tested without MongoDB or an
-  HTTP server.
-- SUNAT and MongoDB can be replaced behind output ports.
-- More files and explicit contracts are introduced where a simple function
-  might otherwise be sufficient.
-- Abstractions must be added only when they protect a real boundary or enable
-  a required test.
+- El dominio y los casos de uso pueden probarse sin MongoDB ni un servidor HTTP.
+- SUNAT y MongoDB pueden reemplazarse detrás de ports de salida.
+- Se introducen más archivos y contratos explícitos donde una función simple
+  podría parecer suficiente.
+- Las abstracciones solo deben añadirse cuando protejan un límite real o
+  habiliten una prueba necesaria.
 
-## Validation rule
+## Regla de validación
 
-When adding a dependency from a business module to another layer, the change
-must explain why the dependency belongs there and update the relevant ADR if
-the boundary changes.
+Cuando se añada una dependencia de un módulo de negocio hacia otra capa, el
+cambio debe explicar por qué pertenece allí y actualizar el ADR correspondiente
+si cambia el límite.

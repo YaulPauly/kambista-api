@@ -1,31 +1,32 @@
-# Module Boundaries
+# Límites de los módulos
 
 ```mermaid
 flowchart TB
-    Platform[platform\nbootstrap and config]
-    Inbound[Module infrastructure\nHTTP adapters]
-    Application[Application layer\nuse cases and ports]
-    Domain[Domain layer\nentities and invariants]
-    Ports[Output ports\ncontracts]
-    Outbound[Module infrastructure\npersistence and providers]
+    Platform[platform\narranque y configuración]
+    Inbound[Infraestructura del módulo\nadapters HTTP]
+    Application[Capa de aplicación\ncasos de uso y ports]
+    Domain[Capa de dominio\nentities e invariantes]
+    Ports[Ports de salida\ncontratos]
+    Outbound[Infraestructura del módulo\npersistencia y providers]
 
     Platform --> Inbound
     Platform --> Outbound
     Inbound --> Application
     Application --> Domain
     Application --> Ports
-    Outbound -. implements .-> Ports
+    Outbound -. implementa .-> Ports
 
-    subgraph Modules[Business modules]
+    subgraph Modules[Módulos de negocio]
         Identity[identity]
         Currencies[currencies]
         Rates[exchange-rates]
         Transactions[transactions]
     end
 
-    Application -. public contracts .-> Modules
-    Modules -. collaborate through contracts .-> Modules
+    Application -. contratos públicos .-> Modules
+    Modules -. colaboran mediante contratos .-> Modules
 ```
 
-The dotted relationships represent explicit application contracts, not direct
-access to another module's infrastructure or persistence models.
+Las relaciones punteadas representan contratos explícitos de aplicación, no
+acceso directo a la infraestructura o a los modelos de persistencia de otro
+módulo.
