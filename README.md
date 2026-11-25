@@ -15,11 +15,14 @@ El repositorio actualmente incluye:
 - Configuración centralizada del entorno con validación mediante Joi.
 - Validación global de requests, headers de seguridad con Helmet, CORS
   controlado y logging estructurado de requests HTTP.
+- Dockerfile multistage y Docker Compose para desarrollo local.
+- Workflow de GitHub Actions con quality gates y build de Docker.
 - Configuración de TypeScript, ESLint y Prettier.
 
 Todavía no están implementados: los adaptadores de conexión a MongoDB,
 autenticación, JWT y roles, operaciones de cambio de divisas, integración con
-el tipo de cambio de SUNAT, documentación Swagger, Docker ni workflows de CI.
+el tipo de cambio de SUNAT, documentación Swagger, Container Registry, CD y
+despliegue.
 
 ## Requisitos
 
@@ -83,6 +86,25 @@ npm audit --omit=dev
 `npm run lint:fix` y `npm run format` están disponibles para autocorrecciones
 locales intencionales.
 
+## Docker
+
+Docker es opcional para el desarrollo local. Para levantar la API junto con
+MongoDB:
+
+```bash
+docker compose up --build
+```
+
+La API estará disponible en `http://localhost:3000`. Para detener los
+contenedores:
+
+```bash
+docker compose down
+```
+
+El volumen `mongo_data` conserva los datos locales. El Compose incluido no es
+una configuración de producción y no contiene credenciales reales.
+
 ## Arquitectura planificada
 
 El backend seguirá un monolito modular basado en arquitectura hexagonal, Clean
@@ -103,6 +125,7 @@ incorporará en cambios posteriores.
 - [ADR 0002: Límites de arquitectura hexagonal y DDD](./docs/adr/0002-hexagonal-ddd-boundaries.md)
 - [ADR 0003: Límites de los módulos](./docs/adr/0003-module-boundaries.md)
 - [ADR 0004: Fundamentos de la plataforma](./docs/adr/0004-platform-foundation.md)
+- [ADR 0005: Docker y CI](./docs/adr/0005-docker-ci.md)
 - [Diagrama de contexto del sistema](./docs/diagrams/system-context.md)
 - [Diagrama de límites de los módulos](./docs/diagrams/module-boundaries.md)
 
