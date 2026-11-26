@@ -27,6 +27,6 @@ export const environmentValidationSchema = Joi.object({
     .default('15m'),
   BCRYPT_SALT_ROUNDS: Joi.number().integer().min(10).max(15).default(12),
   ADMIN_NAME: Joi.string().trim().max(120).default('Administrator'),
-  ADMIN_EMAIL: Joi.string().email().required(),
-  ADMIN_PASSWORD: Joi.string().min(8).max(72).required(),
-});
+  ADMIN_EMAIL: Joi.string().email().optional(),
+  ADMIN_PASSWORD: Joi.string().min(8).max(72).optional(),
+}).and('ADMIN_EMAIL', 'ADMIN_PASSWORD');

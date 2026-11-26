@@ -8,6 +8,15 @@ import {
   UnauthorizedException,
   BadRequestException,
 } from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import type { UserPublicProfile } from '../../domain/entities/user.entity';
 import { InvalidEmailError } from '../../domain/value-objects/email.value-object';
 import {
@@ -18,14 +27,13 @@ import { LoginUserUseCase } from '../../application/use-cases/login-user.use-cas
 import { RegisterUserUseCase } from '../../application/use-cases/register-user.use-case';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
+import {
+  LoginUserResponseDto,
+  PublicUserResponseDto,
+  RegisterUserResponseDto,
+} from './dto/identity-response.dto';
 
-interface PublicUserResponse {
-  id: string;
-  nombre: string;
-  email: string;
-  rol: UserPublicProfile['role'];
-}
-
+@ApiTags('identity')
 @Controller('v1/auth')
 export class IdentityController {
   constructor(
@@ -35,6 +43,10 @@ export class IdentityController {
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Registrar un usuario' })
+  @ApiCreatedResponse({ type: RegisterUserResponseDto })
+  @ApiBadRequestResponse({ description: 'Los datos enviados no son válidos.' })
+  @ApiConflictResponse({ description: 'El email ya está registrado.' })
   async register(@Body() request: RegisterUserDto) {
     try {
       const user = await this.registerUserUseCase.execute({
@@ -51,6 +63,10 @@ export class IdentityController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Iniciar sesión' })
+  @ApiOkResponse({ type: LoginUserResponseDto })
+  @ApiBadRequestResponse({ description: 'Los datos enviados no son válidos.' })
+  @ApiUnauthorizedResponse({ description: 'Las credenciales no son válidas.' })
   async login(@Body() request: LoginUserDto) {
     try {
       const result = await this.loginUserUseCase.execute(request);
@@ -64,7 +80,7 @@ export class IdentityController {
     }
   }
 
-  private toPublicResponse(user: UserPublicProfile): PublicUserResponse {
+  private toPublicResponse(user: UserPublicProfile): PublicUserResponseDto {
     return {
       id: user.id,
       nombre: user.name,
