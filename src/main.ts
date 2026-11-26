@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import helmet from 'helmet';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { setupSwagger } from './platform/http/swagger';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
@@ -24,6 +25,7 @@ async function bootstrap(): Promise<void> {
       whitelist: true,
     }),
   );
+  setupSwagger(app);
 
   await app.listen(configService.get<number>('PORT', 3000));
 }

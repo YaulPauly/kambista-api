@@ -1,8 +1,9 @@
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
+import { setupSwagger } from './../src/platform/http/swagger';
 
 interface UserResponse {
   id: string;
@@ -20,6 +21,13 @@ interface LoginResponse {
   usuario: UserResponse;
 }
 
+interface OpenApiResponse {
+  info: {
+    title: string;
+  };
+  paths: Record<string, unknown>;
+}
+
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
 
@@ -29,6 +37,14 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(
+      new ValidationPipe({
+        forbidNonWhitelisted: true,
+        transform: true,
+        whitelist: true,
+      }),
+    );
+    setupSwagger(app);
     await app.init();
   });
 
@@ -88,6 +104,43 @@ describe('AppController (e2e)', () => {
     });
     expect(typeof loginBody.access_token).toBe('string');
     expect(loginBody.usuario).not.toHaveProperty('password');
+  });
+
+  it('rejects invalid registration data and unexpected properties', async () => {
+    await request(app.getHttpServer())
+      .post('/v1/auth/register')
+      .send({
+        nombre: 'Juan Pérez',
+        email: 'invalid-email',
+        password: 'short',
+        rol: 'admin',
+      })
+      .expect(400);
+  });
+
+  it('rejects invalid login credentials', async () => {
+    await request(app.getHttpServer())
+      .post('/v1/auth/login')
+      .send({
+        email: 'unknown@example.com',
+        password: 'Contraseña123',
+      })
+      .expect(401);
+  });
+
+  it('exposes the OpenAPI document', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/docs-json')
+      .expect(200);
+    const responseBody = response.body as unknown as OpenApiResponse;
+
+    expect(responseBody).toMatchObject({
+      info: {
+        title: 'Kambista API',
+      },
+    });
+    expect(responseBody.paths).toHaveProperty('/v1/auth/register');
+    expect(responseBody.paths).toHaveProperty('/v1/auth/login');
   });
 
   afterEach(async () => {

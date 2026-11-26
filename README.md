@@ -18,11 +18,12 @@ El repositorio actualmente incluye:
 - Dockerfile multistage y Docker Compose para desarrollo local.
 - Workflow de GitHub Actions con quality gates y build de Docker.
 - Registro, login, hashing bcrypt, JWT y guards de roles para `identity`.
+- Documentación Swagger para los endpoints HTTP implementados.
 - Configuración de TypeScript, ESLint y Prettier.
 
 Todavía no están implementados: las operaciones de cambio de divisas, la
-integración con el tipo de cambio de SUNAT, documentación Swagger, Container
-Registry, CD y despliegue.
+integración con el tipo de cambio de SUNAT, Container Registry, CD y
+despliegue.
 
 ## Requisitos
 
@@ -64,39 +65,14 @@ El repository en memoria se utiliza durante los tests. Cuando existe
 `MONGODB_URI`, los entornos de desarrollo y producción utilizan el adapter
 Mongoose.
 
-## Identidad
+## Servicios HTTP
 
-### Registrar usuario
+La documentación interactiva de los endpoints actuales está disponible en:
 
-```http
-POST /v1/auth/register
-Content-Type: application/json
-```
+`http://localhost:3000/docs`
 
-```json
-{
-  "nombre": "Juan Pérez",
-  "email": "juan@example.com",
-  "password": "contraseña123"
-}
-```
-
-### Iniciar sesión
-
-```http
-POST /v1/auth/login
-Content-Type: application/json
-```
-
-```json
-{
-  "email": "juan@example.com",
-  "password": "contraseña123"
-}
-```
-
-La respuesta de login contiene `access_token` y `usuario`. Nunca se devuelve el
-password ni su hash.
+Los ejemplos de registro y login están documentados en
+[`docs/services.md`](./docs/services.md).
 
 ## Ejecutar la aplicación
 
@@ -117,6 +93,9 @@ permite seleccionar otro puerto mediante la variable `PORT`.
 
 ## Validaciones y pruebas
 
+Los comandos y el propósito de cada validación están documentados en
+[`docs/testing.md`](./docs/testing.md).
+
 ```bash
 npm run typecheck
 npm run lint
@@ -125,6 +104,7 @@ npm run build
 npm run test
 npm run test:e2e
 npm audit --omit=dev
+npm run validate
 ```
 
 `npm run lint:fix` y `npm run format` están disponibles para autocorrecciones
@@ -173,19 +153,3 @@ incorporará en cambios posteriores.
 - [ADR 0006: Fundamentos de identity](./docs/adr/0006-identity-foundation.md)
 - [Diagrama de contexto del sistema](./docs/diagrams/system-context.md)
 - [Diagrama de límites de los módulos](./docs/diagrams/module-boundaries.md)
-
-## Flujo de desarrollo
-
-El proyecto sigue GitHub Flow y Conventional Commits. Los cambios deben ser
-revisados y todas las validaciones relevantes deben pasar antes de crear un
-commit o abrir un pull request.
-
-## Prueba técnica original
-
-Los requerimientos originales están disponibles en
-[`prueba -tecnica.md`](./prueba%20-tecnica.md).
-
-## Licencia
-
-La publicación del paquete está deshabilitada mediante `private: true` y el
-proyecto todavía no tiene una licencia seleccionada (`UNLICENSED`).
