@@ -150,6 +150,17 @@ curl -i http://localhost:3000/docs
 El registro y login pueden probarse con los ejemplos documentados en
 [`services.md`](./services.md).
 
+Para verificar los snapshots persistidos del tipo de cambio en MongoDB:
+
+```bash
+docker compose exec mongo mongosh kambista --eval \
+  'db.exchange_rates.find().sort({fetchedAt: -1}).limit(5).pretty()'
+```
+
+La actualización automática se ejecuta al iniciar la API y cada 30 segundos
+por defecto. La lectura del último tipo de cambio consulta primero la caché en
+memoria y recurre a MongoDB únicamente cuando la entrada no existe o expiró.
+
 Para detener los servicios sin eliminar el volumen de MongoDB:
 
 ```bash

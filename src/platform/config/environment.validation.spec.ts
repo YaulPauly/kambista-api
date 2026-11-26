@@ -9,6 +9,9 @@ describe('environmentValidationSchema', () => {
     expect(result.error).toBeUndefined();
     expect(result.value).toMatchObject({
       CORS_ORIGIN: '',
+      EXCHANGE_RATE_CACHE_TTL_MS: 60000,
+      EXCHANGE_RATE_REFRESH_INTERVAL_MS: 30000,
+      EXCHANGE_RATE_REQUEST_TIMEOUT_MS: 5000,
       NODE_ENV: 'test',
       PORT: 3000,
     });

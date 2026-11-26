@@ -94,6 +94,10 @@ Errores principales:
 
 ## Pendiente
 
-Todavía no existen endpoints HTTP para monedas, tipos de cambio,
-transacciones, historial ni refresh tokens. Se documentarán cuando sean
-implementados.
+El módulo `exchange-rates` ya obtiene y persiste internamente el tipo de cambio
+USD/PEN, y mantiene una caché en memoria para evitar consultar MongoDB en cada
+lectura. Todavía no expone un endpoint HTTP público; el módulo
+`transactions` consumirá su caso de uso cuando se implemente.
+
+Todavía no existen endpoints HTTP para monedas, transacciones, historial ni
+refresh tokens. Se documentarán cuando sean implementados.
