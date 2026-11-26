@@ -4,6 +4,9 @@ import { UserRole } from '../../domain/enums/user-role.enum';
 
 @Schema({ collection: 'users', timestamps: true, versionKey: false })
 export class UserPersistenceModel {
+  @Prop({ type: String, required: true })
+  _id!: string;
+
   @Prop({ maxlength: 120, required: true, trim: true })
   name!: string;
 
