@@ -1,13 +1,13 @@
 export class EmailAlreadyRegisteredError extends Error {
   constructor() {
-    super('The email address is already registered.');
+    super('El email ya está registrado.');
     this.name = EmailAlreadyRegisteredError.name;
   }
 }
 
 export class InvalidCredentialsError extends Error {
   constructor() {
-    super('The provided credentials are invalid.');
+    super('Las credenciales no son válidas.');
     this.name = InvalidCredentialsError.name;
   }
 }
