@@ -21,4 +21,12 @@ describe('environmentValidationSchema', () => {
 
     expect(result.error).toBeDefined();
   });
+
+  it('requires production secrets and persistence configuration', () => {
+    const result = environmentValidationSchema.validate({
+      NODE_ENV: 'production',
+    });
+
+    expect(result.error).toBeDefined();
+  });
 });

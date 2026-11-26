@@ -12,7 +12,8 @@ src/
 │   │   └── ports/
 │   └── infrastructure/
 │       ├── http/
-│       └── persistence/
+│       ├── persistence/
+│       └── security/
 ├── currencies/
 │   ├── domain/
 │   ├── application/

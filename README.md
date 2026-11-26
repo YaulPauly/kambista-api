@@ -17,12 +17,12 @@ El repositorio actualmente incluye:
   controlado y logging estructurado de requests HTTP.
 - Dockerfile multistage y Docker Compose para desarrollo local.
 - Workflow de GitHub Actions con quality gates y build de Docker.
+- Registro, login, hashing bcrypt, JWT y guards de roles para `identity`.
 - Configuración de TypeScript, ESLint y Prettier.
 
-Todavía no están implementados: los adaptadores de conexión a MongoDB,
-autenticación, JWT y roles, operaciones de cambio de divisas, integración con
-el tipo de cambio de SUNAT, documentación Swagger, Container Registry, CD y
-despliegue.
+Todavía no están implementados: las operaciones de cambio de divisas, la
+integración con el tipo de cambio de SUNAT, documentación Swagger, Container
+Registry, CD y despliegue.
 
 ## Requisitos
 
@@ -47,12 +47,56 @@ módulo incorpore un adaptador concreto de MongoDB.
 
 ### Variables de entorno
 
-| Variable      | Requerida | Descripción                                                             |
-| ------------- | --------- | ----------------------------------------------------------------------- |
-| `NODE_ENV`    | No        | `development`, `test` o `production`; por defecto `development`.        |
-| `PORT`        | No        | Puerto HTTP; por defecto `3000`.                                        |
-| `CORS_ORIGIN` | No        | Orígenes permitidos separados por comas; vacío desactiva CORS.          |
-| `MONGODB_URI` | No        | URI de MongoDB reservada para la futura infraestructura de los módulos. |
+| Variable             | Requerida | Descripción                                                        |
+| -------------------- | --------- | ------------------------------------------------------------------ |
+| `NODE_ENV`           | No        | `development`, `test` o `production`; por defecto `development`.   |
+| `PORT`               | No        | Puerto HTTP; por defecto `3000`.                                   |
+| `CORS_ORIGIN`        | No        | Orígenes permitidos separados por comas; vacío desactiva CORS.     |
+| `JWT_SECRET`         | No        | Secreto JWT; obligatorio en producción y con mínimo 32 caracteres. |
+| `JWT_EXPIRES_IN`     | No        | Duración del access token; por defecto `15m`.                      |
+| `BCRYPT_SALT_ROUNDS` | No        | Coste de bcrypt entre `10` y `15`; por defecto `12`.               |
+| `ADMIN_NAME`         | No        | Nombre utilizado por el seeder opcional del administrador.         |
+| `ADMIN_EMAIL`        | No        | Email opcional del administrador.                                  |
+| `ADMIN_PASSWORD`     | No        | Password opcional del administrador; nunca debe versionarse.       |
+| `MONGODB_URI`        | No        | URI de MongoDB; obligatoria en producción.                         |
+
+El repository en memoria se utiliza durante los tests. Cuando existe
+`MONGODB_URI`, los entornos de desarrollo y producción utilizan el adapter
+Mongoose.
+
+## Identidad
+
+### Registrar usuario
+
+```http
+POST /v1/auth/register
+Content-Type: application/json
+```
+
+```json
+{
+  "nombre": "Juan Pérez",
+  "email": "juan@example.com",
+  "password": "contraseña123"
+}
+```
+
+### Iniciar sesión
+
+```http
+POST /v1/auth/login
+Content-Type: application/json
+```
+
+```json
+{
+  "email": "juan@example.com",
+  "password": "contraseña123"
+}
+```
+
+La respuesta de login contiene `access_token` y `usuario`. Nunca se devuelve el
+password ni su hash.
 
 ## Ejecutar la aplicación
 
@@ -126,6 +170,7 @@ incorporará en cambios posteriores.
 - [ADR 0003: Límites de los módulos](./docs/adr/0003-module-boundaries.md)
 - [ADR 0004: Fundamentos de la plataforma](./docs/adr/0004-platform-foundation.md)
 - [ADR 0005: Docker y CI](./docs/adr/0005-docker-ci.md)
+- [ADR 0006: Fundamentos de identity](./docs/adr/0006-identity-foundation.md)
 - [Diagrama de contexto del sistema](./docs/diagrams/system-context.md)
 - [Diagrama de límites de los módulos](./docs/diagrams/module-boundaries.md)
 

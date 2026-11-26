@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { environmentValidationSchema } from './platform/config/environment.validation';
 import { RequestLoggingMiddleware } from './platform/http/request-logging.middleware';
+import { IdentityModule } from './identity/identity.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { RequestLoggingMiddleware } from './platform/http/request-logging.middle
       isGlobal: true,
       validationSchema: environmentValidationSchema,
     }),
+    IdentityModule.register(),
   ],
   controllers: [AppController],
   providers: [AppService],
