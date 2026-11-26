@@ -1,4 +1,9 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RefreshExchangeRateUseCase } from '../../application/use-cases/refresh-exchange-rate.use-case';
 
@@ -7,6 +12,7 @@ export class ExchangeRateRefreshScheduler
   implements OnModuleInit, OnModuleDestroy
 {
   private refreshInterval?: ReturnType<typeof setInterval>;
+  private readonly logger = new Logger(ExchangeRateRefreshScheduler.name);
 
   constructor(
     private readonly refreshExchangeRateUseCase: RefreshExchangeRateUseCase,
@@ -33,10 +39,31 @@ export class ExchangeRateRefreshScheduler
   }
 
   private async refreshSafely(): Promise<void> {
+    const startedAt = process.hrtime.bigint();
+
     try {
       await this.refreshExchangeRateUseCase.execute();
-    } catch {
-      console.error('Exchange rate refresh failed.');
+      this.logger.log(
+        JSON.stringify({
+          event: 'exchange_rate_refresh_succeeded',
+          provider: 'sunat',
+          durationMs: this.getDurationMs(startedAt),
+        }),
+      );
+    } catch (error: unknown) {
+      this.logger.error(
+        JSON.stringify({
+          event: 'exchange_rate_refresh_failed',
+          provider: 'sunat',
+          durationMs: this.getDurationMs(startedAt),
+          errorType: error instanceof Error ? error.name : 'UnknownError',
+        }),
+      );
     }
+  }
+
+  private getDurationMs(startedAt: bigint): number {
+    const durationMs = Number(process.hrtime.bigint() - startedAt) / 1_000_000;
+    return Number(durationMs.toFixed(2));
   }
 }

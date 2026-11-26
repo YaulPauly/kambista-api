@@ -1,8 +1,8 @@
 # Estructura de `src`
 
-Esta rama establece el árbol fuente del monolito modular. Las carpetas están
-intencionalmente vacías: la implementación pertenece a las ramas del roadmap y
-debe seguir las reglas de `AGENTS.md` y de los ADRs de arquitectura.
+El árbol fuente pertenece a un monolito modular. Cada módulo mantiene sus
+reglas de dominio, casos de uso y adapters de infraestructura siguiendo
+`AGENTS.md` y los ADRs de arquitectura.
 
 ```text
 src/
@@ -35,5 +35,5 @@ src/
     └── http/
 ```
 
-Los archivos del scaffold actual permanecen en la raíz de `src/` hasta que las
-ramas de plataforma y features introduzcan sus reemplazos deliberadamente.
+Los archivos del arranque de la aplicación permanecen en la raíz de `src/`.
+Los módulos incorporan solo las capas y adapters que ya tienen un uso real.

@@ -94,7 +94,7 @@ export class IdentityModule {
         JwtAuthGuard,
         RolesGuard,
       ],
-      exports: [JwtAuthGuard, RolesGuard],
+      exports: [JwtAuthGuard, RolesGuard, TOKEN_SERVICE],
     };
   }
 }

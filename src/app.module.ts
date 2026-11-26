@@ -4,8 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { environmentValidationSchema } from './platform/config/environment.validation';
 import { RequestLoggingMiddleware } from './platform/http/request-logging.middleware';
-import { IdentityModule } from './identity/identity.module';
-import { ExchangeRatesModule } from './exchange-rates/exchange-rates.module';
+import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
   imports: [
@@ -14,8 +13,7 @@ import { ExchangeRatesModule } from './exchange-rates/exchange-rates.module';
       isGlobal: true,
       validationSchema: environmentValidationSchema,
     }),
-    IdentityModule.register(),
-    ExchangeRatesModule.register(),
+    TransactionsModule.register(),
   ],
   controllers: [AppController],
   providers: [AppService],

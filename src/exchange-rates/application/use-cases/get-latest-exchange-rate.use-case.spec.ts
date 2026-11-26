@@ -9,9 +9,11 @@ class FakeRepository implements ExchangeRateRepository {
   latestRate: ExchangeRate | null = null;
   findLatestCalls = 0;
 
-  findLatest = (): Promise<ExchangeRate | null> => {
+  findLatest = (pair: CurrencyPair): Promise<ExchangeRate | null> => {
     this.findLatestCalls += 1;
-    return Promise.resolve(this.latestRate);
+    return Promise.resolve(
+      this.latestRate?.pair.value === pair.value ? this.latestRate : null,
+    );
   };
 
   save = (exchangeRate: ExchangeRate): Promise<ExchangeRate> =>
@@ -86,5 +88,22 @@ describe('GetLatestExchangeRateUseCase', () => {
         quoteCurrency: 'PEN',
       }),
     ).rejects.toBeInstanceOf(ExchangeRateNotAvailableError);
+  });
+
+  it('uses the inverse pair when the requested direction is not persisted', async () => {
+    const repository = new FakeRepository();
+    const cache = new FakeCache();
+    const storedRate = createExchangeRate();
+    repository.latestRate = storedRate;
+    const useCase = new GetLatestExchangeRateUseCase(repository, cache);
+
+    const result = await useCase.execute({
+      baseCurrency: 'PEN',
+      quoteCurrency: 'USD',
+    });
+
+    expect(result).toBe(storedRate);
+    expect(repository.findLatestCalls).toBe(2);
+    expect(cache.cachedRate).toBe(storedRate);
   });
 });

@@ -92,12 +92,95 @@ Errores principales:
 - `400 Bad Request`: request inválido.
 - `401 Unauthorized`: las credenciales no son válidas.
 
+## Transactions
+
+Todos los endpoints de este módulo requieren:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+### Crear solicitud de cambio
+
+```http
+POST /v1/transactions
+Content-Type: application/json
+Authorization: Bearer <access_token>
+```
+
+Request:
+
+```json
+{
+  "monedaOrigen": "USD",
+  "monedaDestino": "PEN",
+  "monto": 100
+}
+```
+
+Respuesta exitosa: `201 Created`
+
+```json
+{
+  "id": "65328d68-32d5-4881-b381-4ff2c4e1dec0",
+  "monedaOrigen": "USD",
+  "monedaDestino": "PEN",
+  "monto": 100,
+  "montoCambiado": 373.9,
+  "tipoCambio": 3.739,
+  "fecha": "2026-11-26T15:00:00.000Z"
+}
+```
+
+Reglas actuales:
+
+- El monto debe ser mayor que cero.
+- El monto admite como máximo dos decimales y siete dígitos enteros.
+- Las monedas de origen y destino no pueden ser iguales.
+- `USD → PEN` utiliza el tipo de cambio de venta.
+- `PEN → USD` utiliza el tipo de cambio de compra.
+- Si no existe un tipo de cambio disponible, la API responde `503 Service
+  Unavailable`.
+
+### Consultar historial
+
+```http
+GET /v1/transactions/history?startDate=2026-11-01&endDate=2026-11-30
+Authorization: Bearer <access_token>
+```
+
+Un administrador puede consultar el historial de otro usuario:
+
+```http
+GET /v1/transactions/history?startDate=2026-11-01&endDate=2026-11-30&userId=<USER_ID>
+Authorization: Bearer <admin_access_token>
+```
+
+Un usuario normal siempre consulta únicamente su propio historial, aunque envíe
+un `userId` diferente.
+
+Respuesta exitosa: `200 OK`
+
+```json
+[
+  {
+    "id": "65328d68-32d5-4881-b381-4ff2c4e1dec0",
+    "monedaOrigen": "USD",
+    "monedaDestino": "PEN",
+    "monto": 100,
+    "montoCambiado": 373.9,
+    "tipoCambio": 3.739,
+    "fecha": "2026-11-26T15:00:00.000Z"
+  }
+]
+```
+
 ## Pendiente
 
 El módulo `exchange-rates` ya obtiene y persiste internamente el tipo de cambio
 USD/PEN, y mantiene una caché en memoria para evitar consultar MongoDB en cada
-lectura. Todavía no expone un endpoint HTTP público; el módulo
-`transactions` consumirá su caso de uso cuando se implemente.
+lectura. Todavía no expone un endpoint HTTP público.
 
-Todavía no existen endpoints HTTP para monedas, transacciones, historial ni
-refresh tokens. Se documentarán cuando sean implementados.
+Todavía no existen endpoints HTTP para monedas ni refresh tokens. La
+paginación del historial y las funcionalidades extra se documentarán cuando se
+implementen.
