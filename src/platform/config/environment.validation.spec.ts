@@ -29,4 +29,21 @@ describe('environmentValidationSchema', () => {
 
     expect(result.error).toBeDefined();
   });
+
+  it('accepts empty optional admin bootstrap settings', () => {
+    const result = environmentValidationSchema.validate({
+      ADMIN_EMAIL: '',
+      ADMIN_PASSWORD: '',
+    });
+
+    expect(result.error).toBeUndefined();
+  });
+
+  it('requires both admin bootstrap settings when one is configured', () => {
+    const result = environmentValidationSchema.validate({
+      ADMIN_EMAIL: 'admin@example.com',
+    });
+
+    expect(result.error).toBeDefined();
+  });
 });
