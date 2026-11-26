@@ -29,4 +29,18 @@ export const environmentValidationSchema = Joi.object({
   ADMIN_NAME: Joi.string().trim().max(120).default('Administrator'),
   ADMIN_EMAIL: Joi.string().email().empty('').optional(),
   ADMIN_PASSWORD: Joi.string().min(8).max(72).empty('').optional(),
+  EXCHANGE_RATE_PROVIDER_URL: Joi.string()
+    .uri({ scheme: ['http', 'https'] })
+    .default('https://api.apis.net.pe/v1/tipo-cambio-sunat'),
+  EXCHANGE_RATE_PROVIDER_TOKEN: Joi.string().allow('').default(''),
+  EXCHANGE_RATE_REFRESH_INTERVAL_MS: Joi.number()
+    .integer()
+    .min(1_000)
+    .default(30_000),
+  EXCHANGE_RATE_CACHE_TTL_MS: Joi.number().integer().min(1_000).default(60_000),
+  EXCHANGE_RATE_REQUEST_TIMEOUT_MS: Joi.number()
+    .integer()
+    .min(1_000)
+    .max(30_000)
+    .default(5_000),
 }).and('ADMIN_EMAIL', 'ADMIN_PASSWORD');

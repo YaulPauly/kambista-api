@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { environmentValidationSchema } from './platform/config/environment.validation';
 import { RequestLoggingMiddleware } from './platform/http/request-logging.middleware';
 import { IdentityModule } from './identity/identity.module';
+import { ExchangeRatesModule } from './exchange-rates/exchange-rates.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { IdentityModule } from './identity/identity.module';
       validationSchema: environmentValidationSchema,
     }),
     IdentityModule.register(),
+    ExchangeRatesModule.register(),
   ],
   controllers: [AppController],
   providers: [AppService],

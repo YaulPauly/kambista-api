@@ -18,12 +18,15 @@ El repositorio actualmente incluye:
 - Dockerfile multistage y Docker Compose para desarrollo local.
 - Workflow de GitHub Actions con quality gates y build de Docker.
 - Registro, login, hashing bcrypt, JWT y guards de roles para `identity`.
+- Obtención del tipo de cambio USD/PEN desde el proveedor externo, persistencia
+  de snapshots y caché en memoria con TTL.
+- Actualización automática del tipo de cambio al iniciar la aplicación y cada
+  30 segundos por defecto.
 - Documentación Swagger para los endpoints HTTP implementados.
 - Configuración de TypeScript, ESLint y Prettier.
 
-Todavía no están implementados: las operaciones de cambio de divisas, la
-integración con el tipo de cambio de SUNAT, Container Registry, CD y
-despliegue.
+Todavía no están implementados: las operaciones de cambio de divisas y el
+historial de transacciones, Container Registry, CD y despliegue.
 
 ## Requisitos
 
@@ -42,9 +45,9 @@ npm ci
 cp .env.example .env
 ```
 
-El scaffold actual no requiere un servicio externo. `MONGODB_URI` se valida
-como configuración futura de persistencia, pero no se utiliza hasta que un
-módulo incorpore un adaptador concreto de MongoDB.
+La ejecución local sin `MONGODB_URI` utiliza repositories en memoria. Docker
+configura MongoDB y permite verificar la persistencia real de usuarios y tipos
+de cambio.
 
 ### Variables de entorno
 
@@ -60,6 +63,11 @@ módulo incorpore un adaptador concreto de MongoDB.
 | `ADMIN_EMAIL`        | No        | Email opcional del administrador.                                  |
 | `ADMIN_PASSWORD`     | No        | Password opcional del administrador; nunca debe versionarse.       |
 | `MONGODB_URI`        | No        | URI de MongoDB; obligatoria en producción.                         |
+| `EXCHANGE_RATE_PROVIDER_URL` | No | URL del proveedor USD/PEN; tiene un valor por defecto. |
+| `EXCHANGE_RATE_PROVIDER_TOKEN` | No | Token opcional del proveedor; nunca debe versionarse. |
+| `EXCHANGE_RATE_REFRESH_INTERVAL_MS` | No | Intervalo de actualización; por defecto `30000`. |
+| `EXCHANGE_RATE_CACHE_TTL_MS` | No | Vigencia de la caché; por defecto `60000`. |
+| `EXCHANGE_RATE_REQUEST_TIMEOUT_MS` | No | Timeout de la consulta externa; por defecto `5000`. |
 
 El repository en memoria se utiliza durante los tests. Cuando existe
 `MONGODB_URI`, los entornos de desarrollo y producción utilizan el adapter
@@ -136,7 +144,7 @@ Architecture, DDD y SOLID. Los límites iniciales de los módulos son:
 
 - `identity`: usuarios, autenticación y roles.
 - `currencies`: monedas soportadas y reglas de pares de divisas.
-- `exchange-rates`: obtención y persistencia del tipo de cambio de SUNAT.
+- `exchange-rates`: obtención, persistencia y caché del tipo de cambio USD/PEN.
 - `transactions`: solicitudes de cambio e historial de transacciones.
 - `shared`: contratos y utilidades cross-cutting reutilizables.
 - `platform`: arranque de NestJS, configuración y concerns HTTP globales.
@@ -151,5 +159,7 @@ incorporará en cambios posteriores.
 - [ADR 0004: Fundamentos de la plataforma](./docs/adr/0004-platform-foundation.md)
 - [ADR 0005: Docker y CI](./docs/adr/0005-docker-ci.md)
 - [ADR 0006: Fundamentos de identity](./docs/adr/0006-identity-foundation.md)
+- [ADR 0007: Reglas del dominio de currencies](./docs/adr/0007-currencies-domain-rules.md)
+- [ADR 0008: Proveedor, persistencia y caché de exchange-rates](./docs/adr/0008-exchange-rates-provider-cache.md)
 - [Diagrama de contexto del sistema](./docs/diagrams/system-context.md)
 - [Diagrama de límites de los módulos](./docs/diagrams/module-boundaries.md)
