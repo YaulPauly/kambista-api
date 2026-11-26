@@ -1,8 +1,7 @@
 # API de Kambista
 
-API backend para la prueba técnica de Kambista. Actualmente el proyecto es un
-scaffold inicial de NestJS y evolucionará hacia un monolito modular para una
-plataforma de cambio de divisas.
+API backend para la prueba técnica de Kambista. El proyecto es un monolito
+modular de NestJS para una plataforma de cambio de divisas.
 
 ## Estado actual
 
@@ -22,11 +21,14 @@ El repositorio actualmente incluye:
   de snapshots y caché en memoria con TTL.
 - Actualización automática del tipo de cambio al iniciar la aplicación y cada
   30 segundos por defecto.
+- Creación de solicitudes de cambio USD/PEN y PEN/USD.
+- Historial de transacciones con filtros por rango de fechas y autorización
+  según el rol del usuario.
 - Documentación Swagger para los endpoints HTTP implementados.
 - Configuración de TypeScript, ESLint y Prettier.
 
-Todavía no están implementados: las operaciones de cambio de divisas y el
-historial de transacciones, Container Registry, CD y despliegue.
+Todavía no están implementados: frontend, refresh tokens, paginación del
+historial, Container Registry, CD y despliegue.
 
 ## Requisitos
 
@@ -96,8 +98,8 @@ npm run build
 npm run start:prod
 ```
 
-La aplicación escucha en el puerto `3000` por defecto. El scaffold actual
-permite seleccionar otro puerto mediante la variable `PORT`.
+La aplicación escucha en el puerto `3000` por defecto y permite seleccionar
+otro puerto mediante la variable `PORT`.
 
 ## Validaciones y pruebas
 
@@ -137,7 +139,7 @@ docker compose down
 El volumen `mongo_data` conserva los datos locales. El Compose incluido no es
 una configuración de producción y no contiene credenciales reales.
 
-## Arquitectura planificada
+## Arquitectura
 
 El backend seguirá un monolito modular basado en arquitectura hexagonal, Clean
 Architecture, DDD y SOLID. Los límites iniciales de los módulos son:
@@ -149,9 +151,8 @@ Architecture, DDD y SOLID. Los límites iniciales de los módulos son:
 - `shared`: contratos y utilidades cross-cutting reutilizables.
 - `platform`: arranque de NestJS, configuración y concerns HTTP globales.
 
-Los límites de los módulos, las reglas de dependencias y el skeleton de código
-están documentados en los siguientes recursos. La funcionalidad de negocio se
-incorporará en cambios posteriores.
+Los límites de los módulos, las reglas de dependencias y las decisiones de
+implementación están documentados en los siguientes recursos.
 
 - [ADR 0001: Monolito modular](./docs/adr/0001-modular-monolith.md)
 - [ADR 0002: Límites de arquitectura hexagonal y DDD](./docs/adr/0002-hexagonal-ddd-boundaries.md)
@@ -161,5 +162,6 @@ incorporará en cambios posteriores.
 - [ADR 0006: Fundamentos de identity](./docs/adr/0006-identity-foundation.md)
 - [ADR 0007: Reglas del dominio de currencies](./docs/adr/0007-currencies-domain-rules.md)
 - [ADR 0008: Proveedor, persistencia y caché de exchange-rates](./docs/adr/0008-exchange-rates-provider-cache.md)
+- [ADR 0009: Solicitudes e historial de transacciones](./docs/adr/0009-transactions-conversion-history.md)
 - [Diagrama de contexto del sistema](./docs/diagrams/system-context.md)
 - [Diagrama de límites de los módulos](./docs/diagrams/module-boundaries.md)

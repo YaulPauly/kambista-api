@@ -37,7 +37,7 @@ export class RefreshExchangeRateUseCase {
       effectiveDate: providerResult.effectiveDate,
       fetchedAt: new Date(),
     });
-    
+
     const savedExchangeRate =
       await this.exchangeRateRepository.save(exchangeRate);
 

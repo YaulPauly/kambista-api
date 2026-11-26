@@ -22,11 +22,33 @@ export class GetLatestExchangeRateUseCase {
   ) {}
 
   async execute(command: GetLatestExchangeRateCommand): Promise<ExchangeRate> {
-    const pair = CurrencyPair.create(
+    const requestedPair = CurrencyPair.create(
       command.baseCurrency,
       command.quoteCurrency,
     );
 
+    const directExchangeRate = await this.findAvailableRate(requestedPair);
+
+    if (directExchangeRate) {
+      return directExchangeRate;
+    }
+
+    const inversePair = CurrencyPair.create(
+      requestedPair.quoteCurrency,
+      requestedPair.baseCurrency,
+    );
+    const inverseExchangeRate = await this.findAvailableRate(inversePair);
+
+    if (!inverseExchangeRate) {
+      throw new ExchangeRateNotAvailableError();
+    }
+
+    return inverseExchangeRate;
+  }
+
+  private async findAvailableRate(
+    pair: CurrencyPair,
+  ): Promise<ExchangeRate | null> {
     const cachedExchangeRate = this.exchangeRateCache.get(pair);
 
     if (cachedExchangeRate) {
@@ -35,11 +57,10 @@ export class GetLatestExchangeRateUseCase {
 
     const exchangeRate = await this.exchangeRateRepository.findLatest(pair);
 
-    if (!exchangeRate) {
-      throw new ExchangeRateNotAvailableError();
+    if (exchangeRate) {
+      this.exchangeRateCache.set(exchangeRate);
     }
 
-    this.exchangeRateCache.set(exchangeRate);
     return exchangeRate;
   }
 }

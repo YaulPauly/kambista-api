@@ -161,6 +161,11 @@ La actualización automática se ejecuta al iniciar la API y cada 30 segundos
 por defecto. La lectura del último tipo de cambio consulta primero la caché en
 memoria y recurre a MongoDB únicamente cuando la entrada no existe o expiró.
 
+Los logs HTTP se emiten como JSON estructurado. Incluyen evento, request ID,
+método, endpoint, status, duración, usuario autenticado y rol. Para requests
+anónimos `userId` y `userRole` aparecen como `null`. No se registran tokens,
+passwords, emails ni cuerpos de requests.
+
 Para detener los servicios sin eliminar el volumen de MongoDB:
 
 ```bash

@@ -15,7 +15,12 @@ un servidor MongoDB mientras ningún módulo consuma un adapter de persistencia.
 `platform/http` es dueño de los concerns HTTP globales: headers de seguridad,
 CORS, validación de requests y logging de requests. La aplicación utiliza el
 logger incluido en NestJS con eventos JSON estructurados y no registra query
-strings ni credenciales.
+strings, cuerpos de requests ni credenciales.
+
+El evento `http_request` registra `requestId`, método, endpoint, código de
+respuesta, duración en milisegundos, `userId` y rol cuando existe un usuario
+autenticado. Los errores del scheduler de tipos de cambio registran el evento,
+proveedor, duración y tipo de error sin incluir el mensaje externo ni secretos.
 
 `MONGODB_URI` forma parte del contrato de configuración validado, pero la
 conexión a MongoDB será creada por la infraestructura específica de un módulo
