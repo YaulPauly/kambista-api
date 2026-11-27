@@ -1,4 +1,7 @@
+import { randomBytes } from 'node:crypto';
 import Joi from 'joi';
+
+const createEphemeralSecret = (): string => randomBytes(32).toString('hex');
 
 export const environmentValidationSchema = Joi.object({
   NODE_ENV: Joi.string()
@@ -18,9 +21,7 @@ export const environmentValidationSchema = Joi.object({
     .when('NODE_ENV', {
       is: 'production',
       then: Joi.required(),
-      otherwise: Joi.string()
-        .min(32)
-        .default('local-development-only-secret-change-me-32-chars'),
+      otherwise: Joi.string().min(32).default(createEphemeralSecret),
     }),
   JWT_EXPIRES_IN: Joi.string()
     .pattern(/^\d+[smhd]$/)
@@ -30,9 +31,7 @@ export const environmentValidationSchema = Joi.object({
     .when('NODE_ENV', {
       is: 'production',
       then: Joi.required(),
-      otherwise: Joi.string()
-        .min(32)
-        .default('local-development-only-refresh-secret-change-me-32-chars'),
+      otherwise: Joi.string().min(32).default(createEphemeralSecret),
     }),
   JWT_REFRESH_EXPIRES_IN: Joi.string()
     .pattern(/^\d+[smhd]$/)

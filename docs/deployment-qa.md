@@ -167,6 +167,10 @@ variables:
 | `GCP_DEPLOYER_SERVICE_ACCOUNT`      | `kambista-qa-deployer@tu-project-id.iam.gserviceaccount.com` |
 | `GCP_RUNTIME_SERVICE_ACCOUNT`       | `kambista-qa-runtime@tu-project-id.iam.gserviceaccount.com`  |
 | `GCP_WORKLOAD_IDENTITY_PROVIDER`    | valor completo de `WIF_PROVIDER`                             |
+| `MONGODB_URI_SECRET_NAME`           | `kambista-api-qa-mongodb-uri`                                |
+| `JWT_SECRET_NAME`                   | `kambista-api-qa-jwt-secret`                                 |
+| `JWT_REFRESH_SECRET_NAME`           | `kambista-api-qa-jwt-refresh-secret`                         |
+| `ADMIN_PASSWORD_SECRET_NAME`        | `kambista-api-qa-admin-password`                             |
 | `CORS_ORIGIN`                       | URL del frontend QA o vacío                                  |
 | `JWT_EXPIRES_IN`                    | `15m`                                                        |
 | `JWT_REFRESH_EXPIRES_IN`            | `7d`                                                         |
