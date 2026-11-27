@@ -29,7 +29,18 @@ interface RegisterResponse {
 
 interface LoginResponse {
   access_token: string;
+  refresh_token: string;
   usuario: UserResponse;
+}
+
+interface TransactionHistoryResponse {
+  data: TransactionResponse[];
+  meta: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 interface TransactionResponse {
@@ -140,7 +151,22 @@ describe('AppController (e2e)', () => {
       },
     });
     expect(typeof loginBody.access_token).toBe('string');
+    expect(typeof loginBody.refresh_token).toBe('string');
     expect(loginBody.usuario).not.toHaveProperty('password');
+
+    const refreshed = await request(app.getHttpServer())
+      .post('/v1/auth/refresh')
+      .send({ refresh_token: loginBody.refresh_token })
+      .expect(200);
+    const refreshedBody = refreshed.body as unknown as LoginResponse;
+
+    expect(typeof refreshedBody.access_token).toBe('string');
+    expect(typeof refreshedBody.refresh_token).toBe('string');
+
+    await request(app.getHttpServer())
+      .post('/v1/auth/refresh')
+      .send({ refresh_token: loginBody.refresh_token })
+      .expect(401);
   });
 
   it('rejects invalid registration data and unexpected properties', async () => {
@@ -178,6 +204,7 @@ describe('AppController (e2e)', () => {
     });
     expect(responseBody.paths).toHaveProperty('/v1/auth/register');
     expect(responseBody.paths).toHaveProperty('/v1/auth/login');
+    expect(responseBody.paths).toHaveProperty('/v1/auth/refresh');
     expect(responseBody.paths).toHaveProperty('/v1/transactions');
     expect(responseBody.paths).toHaveProperty('/v1/transactions/history');
   });
@@ -245,7 +272,35 @@ describe('AppController (e2e)', () => {
       .query({ startDate: '2026-11-01', endDate: '2030-11-30' })
       .expect(200);
 
-    expect(history.body).toHaveLength(2);
+    const historyBody = history.body as unknown as TransactionHistoryResponse;
+    expect(historyBody.data).toHaveLength(2);
+    expect(historyBody.meta).toEqual({
+      page: 1,
+      pageSize: 12,
+      total: 2,
+      totalPages: 1,
+    });
+
+    const secondPage = await request(app.getHttpServer())
+      .get('/v1/transactions/history')
+      .set('Authorization', `Bearer ${session.accessToken}`)
+      .query({
+        startDate: '2026-11-01',
+        endDate: '2030-11-30',
+        page: 2,
+        pageSize: 1,
+      })
+      .expect(200);
+    const secondPageBody =
+      secondPage.body as unknown as TransactionHistoryResponse;
+
+    expect(secondPageBody.data).toHaveLength(1);
+    expect(secondPageBody.meta).toEqual({
+      page: 2,
+      pageSize: 1,
+      total: 2,
+      totalPages: 2,
+    });
   });
 
   it('allows an admin to query another user history', async () => {
@@ -281,8 +336,9 @@ describe('AppController (e2e)', () => {
       })
       .expect(200);
 
-    expect(history.body).toHaveLength(1);
-    expect((history.body as TransactionResponse[])[0]?.monto).toBe(50);
+    const historyBody = history.body as unknown as TransactionHistoryResponse;
+    expect(historyBody.data).toHaveLength(1);
+    expect(historyBody.data[0]?.monto).toBe(50);
   });
 
   it('rejects invalid transaction data', async () => {
@@ -297,6 +353,20 @@ describe('AppController (e2e)', () => {
         monto: 100.123,
       })
       .expect(400);
+  });
+
+  it('limits repeated login attempts', async () => {
+    const loginRequest = () =>
+      request(app.getHttpServer()).post('/v1/auth/login').send({
+        email: 'unknown@example.com',
+        password: 'Contraseña123',
+      });
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      await loginRequest().expect(401);
+    }
+
+    await loginRequest().expect(429);
   });
 
   afterEach(async () => {

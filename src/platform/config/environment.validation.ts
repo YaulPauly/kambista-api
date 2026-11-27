@@ -25,6 +25,20 @@ export const environmentValidationSchema = Joi.object({
   JWT_EXPIRES_IN: Joi.string()
     .pattern(/^\d+[smhd]$/)
     .default('15m'),
+  JWT_REFRESH_SECRET: Joi.string()
+    .min(32)
+    .when('NODE_ENV', {
+      is: 'production',
+      then: Joi.required(),
+      otherwise: Joi.string()
+        .min(32)
+        .default('local-development-only-refresh-secret-change-me-32-chars'),
+    }),
+  JWT_REFRESH_EXPIRES_IN: Joi.string()
+    .pattern(/^\d+[smhd]$/)
+    .default('7d'),
+  LOGIN_RATE_LIMIT: Joi.number().integer().min(1).max(100).default(5),
+  LOGIN_RATE_WINDOW_MS: Joi.number().integer().min(1_000).default(60_000),
   BCRYPT_SALT_ROUNDS: Joi.number().integer().min(10).max(15).default(12),
   ADMIN_NAME: Joi.string().trim().max(120).default('Administrator'),
   ADMIN_EMAIL: Joi.string().email().empty('').optional(),

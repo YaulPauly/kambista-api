@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
   BadRequestException,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import {
   ApiBadRequestResponse,
   ApiConflictResponse,
@@ -22,11 +23,14 @@ import { InvalidEmailError } from '../../domain/value-objects/email.value-object
 import {
   EmailAlreadyRegisteredError,
   InvalidCredentialsError,
+  InvalidRefreshTokenError,
 } from '../../application/errors/identity.errors';
 import { LoginUserUseCase } from '../../application/use-cases/login-user.use-case';
+import { RefreshUserUseCase } from '../../application/use-cases/refresh-user.use-case';
 import { RegisterUserUseCase } from '../../application/use-cases/register-user.use-case';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 import {
   LoginUserResponseDto,
   PublicUserResponseDto,
@@ -35,10 +39,12 @@ import {
 
 @ApiTags('identity')
 @Controller('v1/auth')
+@SkipThrottle()
 export class IdentityController {
   constructor(
     private readonly registerUserUseCase: RegisterUserUseCase,
     private readonly loginUserUseCase: LoginUserUseCase,
+    private readonly refreshUserUseCase: RefreshUserUseCase,
   ) {}
 
   @Post('register')
@@ -62,6 +68,7 @@ export class IdentityController {
   }
 
   @Post('login')
+  @SkipThrottle({ default: false })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Iniciar sesión' })
   @ApiOkResponse({ type: LoginUserResponseDto })
@@ -73,6 +80,29 @@ export class IdentityController {
 
       return {
         access_token: result.accessToken,
+        refresh_token: result.refreshToken,
+        usuario: this.toPublicResponse(result.user),
+      };
+    } catch (error: unknown) {
+      this.handleIdentityError(error);
+    }
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Renovar los tokens de sesión' })
+  @ApiOkResponse({ type: LoginUserResponseDto })
+  @ApiBadRequestResponse({ description: 'El refresh token es obligatorio.' })
+  @ApiUnauthorizedResponse({ description: 'El refresh token no es válido.' })
+  async refresh(@Body() request: RefreshTokenDto) {
+    try {
+      const result = await this.refreshUserUseCase.execute({
+        refreshToken: request.refresh_token,
+      });
+
+      return {
+        access_token: result.accessToken,
+        refresh_token: result.refreshToken,
         usuario: this.toPublicResponse(result.user),
       };
     } catch (error: unknown) {
@@ -96,6 +126,10 @@ export class IdentityController {
 
     if (error instanceof InvalidCredentialsError) {
       throw new UnauthorizedException('Las credenciales no son válidas.');
+    }
+
+    if (error instanceof InvalidRefreshTokenError) {
+      throw new UnauthorizedException('El refresh token no es válido.');
     }
 
     if (error instanceof InvalidEmailError) {

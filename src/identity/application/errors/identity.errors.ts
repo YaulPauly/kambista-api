@@ -11,3 +11,10 @@ export class InvalidCredentialsError extends Error {
     this.name = InvalidCredentialsError.name;
   }
 }
+
+export class InvalidRefreshTokenError extends Error {
+  constructor() {
+    super('El refresh token no es válido.');
+    this.name = InvalidRefreshTokenError.name;
+  }
+}
