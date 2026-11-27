@@ -15,7 +15,8 @@ El repositorio actualmente incluye:
 - Validación global de requests, headers de seguridad con Helmet, CORS
   controlado y logging estructurado de requests HTTP.
 - Dockerfile multistage y Docker Compose para desarrollo local.
-- Workflow de GitHub Actions con quality gates y build de Docker.
+- Workflow de GitHub Actions con quality gates, build de Docker y despliegue QA
+  preparado para Cloud Run.
 - Registro, login, hashing bcrypt, JWT y guards de roles para `identity`.
 - Obtención del tipo de cambio USD/PEN desde el proveedor externo, persistencia
   de snapshots y caché en memoria con TTL.
@@ -29,7 +30,8 @@ El repositorio actualmente incluye:
 - Documentación Swagger para los endpoints HTTP implementados.
 - Configuración de TypeScript, ESLint y Prettier.
 
-Todavía no están implementados: frontend, Container Registry, CD y despliegue.
+Todavía no están implementados: frontend, Container Registry, despliegue de
+producción y CD para entornos distintos de QA.
 
 ## Requisitos
 
@@ -54,27 +56,27 @@ de cambio.
 
 ### Variables de entorno
 
-| Variable             | Requerida | Descripción                                                        |
-| -------------------- | --------- | ------------------------------------------------------------------ |
-| `NODE_ENV`           | No        | `development`, `test` o `production`; por defecto `development`.   |
-| `PORT`               | No        | Puerto HTTP; por defecto `3000`.                                   |
-| `CORS_ORIGIN`        | No        | Orígenes permitidos separados por comas; vacío desactiva CORS.     |
-| `JWT_SECRET`         | No        | Secreto JWT; obligatorio en producción y con mínimo 32 caracteres. |
-| `JWT_EXPIRES_IN`     | No        | Duración del access token; por defecto `15m`.                      |
-| `JWT_REFRESH_SECRET` | No        | Secreto independiente para refresh tokens; obligatorio en producción. |
-| `JWT_REFRESH_EXPIRES_IN` | No | Duración del refresh token; por defecto `7d`. |
-| `LOGIN_RATE_LIMIT` | No | Intentos de login permitidos por ventana; por defecto `5`. |
-| `LOGIN_RATE_WINDOW_MS` | No | Ventana del rate limiting en milisegundos; por defecto `60000`. |
-| `BCRYPT_SALT_ROUNDS` | No        | Coste de bcrypt entre `10` y `15`; por defecto `12`.               |
-| `ADMIN_NAME`         | No        | Nombre utilizado por el seeder opcional del administrador.         |
-| `ADMIN_EMAIL`        | No        | Email opcional del administrador.                                  |
-| `ADMIN_PASSWORD`     | No        | Password opcional del administrador; nunca debe versionarse.       |
-| `MONGODB_URI`        | No        | URI de MongoDB; obligatoria en producción.                         |
-| `EXCHANGE_RATE_PROVIDER_URL` | No | URL del proveedor USD/PEN; tiene un valor por defecto. |
-| `EXCHANGE_RATE_PROVIDER_TOKEN` | No | Token opcional del proveedor; nunca debe versionarse. |
-| `EXCHANGE_RATE_REFRESH_INTERVAL_MS` | No | Intervalo de actualización; por defecto `30000`. |
-| `EXCHANGE_RATE_CACHE_TTL_MS` | No | Vigencia de la caché; por defecto `60000`. |
-| `EXCHANGE_RATE_REQUEST_TIMEOUT_MS` | No | Timeout de la consulta externa; por defecto `5000`. |
+| Variable                            | Requerida | Descripción                                                           |
+| ----------------------------------- | --------- | --------------------------------------------------------------------- |
+| `NODE_ENV`                          | No        | `development`, `test` o `production`; por defecto `development`.      |
+| `PORT`                              | No        | Puerto HTTP; por defecto `3000`.                                      |
+| `CORS_ORIGIN`                       | No        | Orígenes permitidos separados por comas; vacío desactiva CORS.        |
+| `JWT_SECRET`                        | No        | Secreto JWT; obligatorio en producción y con mínimo 32 caracteres.    |
+| `JWT_EXPIRES_IN`                    | No        | Duración del access token; por defecto `15m`.                         |
+| `JWT_REFRESH_SECRET`                | No        | Secreto independiente para refresh tokens; obligatorio en producción. |
+| `JWT_REFRESH_EXPIRES_IN`            | No        | Duración del refresh token; por defecto `7d`.                         |
+| `LOGIN_RATE_LIMIT`                  | No        | Intentos de login permitidos por ventana; por defecto `5`.            |
+| `LOGIN_RATE_WINDOW_MS`              | No        | Ventana del rate limiting en milisegundos; por defecto `60000`.       |
+| `BCRYPT_SALT_ROUNDS`                | No        | Coste de bcrypt entre `10` y `15`; por defecto `12`.                  |
+| `ADMIN_NAME`                        | No        | Nombre utilizado por el seeder opcional del administrador.            |
+| `ADMIN_EMAIL`                       | No        | Email opcional del administrador.                                     |
+| `ADMIN_PASSWORD`                    | No        | Password opcional del administrador; nunca debe versionarse.          |
+| `MONGODB_URI`                       | No        | URI de MongoDB; obligatoria en producción.                            |
+| `EXCHANGE_RATE_PROVIDER_URL`        | No        | URL del proveedor USD/PEN; tiene un valor por defecto.                |
+| `EXCHANGE_RATE_PROVIDER_TOKEN`      | No        | Token opcional del proveedor; nunca debe versionarse.                 |
+| `EXCHANGE_RATE_REFRESH_INTERVAL_MS` | No        | Intervalo de actualización; por defecto `30000`.                      |
+| `EXCHANGE_RATE_CACHE_TTL_MS`        | No        | Vigencia de la caché; por defecto `60000`.                            |
+| `EXCHANGE_RATE_REQUEST_TIMEOUT_MS`  | No        | Timeout de la consulta externa; por defecto `5000`.                   |
 
 El repository en memoria se utiliza durante los tests. Cuando existe
 `MONGODB_URI`, los entornos de desarrollo y producción utilizan el adapter
@@ -169,5 +171,8 @@ implementación están documentados en los siguientes recursos.
 - [ADR 0008: Proveedor, persistencia y caché de exchange-rates](./docs/adr/0008-exchange-rates-provider-cache.md)
 - [ADR 0009: Solicitudes e historial de transacciones](./docs/adr/0009-transactions-conversion-history.md)
 - [ADR 0010: Conexión MongoDB e índices de consulta](./docs/adr/0010-mongodb-connection-and-indexes.md)
+- [ADR 0011: Precisión monetaria y seguridad de sesiones](./docs/adr/0011-monetary-precision-and-session-security.md)
+- [ADR 0012: Despliegue QA en Cloud Run](./docs/adr/0012-qa-cloud-run-deployment.md)
+- [Guía de despliegue QA en Cloud Run](./docs/deployment-qa.md)
 - [Diagrama de contexto del sistema](./docs/diagrams/system-context.md)
 - [Diagrama de límites de los módulos](./docs/diagrams/module-boundaries.md)
