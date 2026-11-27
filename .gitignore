@@ -18,9 +18,6 @@ npm-debug.log*
 # TypeScript incremental build metadata
 *.tsbuildinfo
 
-# Google GitHub Actions generated credentials
-gha-creds-*.json
-
 # IDEs and editors
 /.idea
 .project

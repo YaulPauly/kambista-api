@@ -15,8 +15,7 @@ El repositorio actualmente incluye:
 - Validación global de requests, headers de seguridad con Helmet, CORS
   controlado y logging estructurado de requests HTTP.
 - Dockerfile multistage y Docker Compose para desarrollo local.
-- Workflow de GitHub Actions con quality gates, build de Docker y despliegue QA
-  preparado para Cloud Run.
+- Workflow de GitHub Actions con quality gates y build de Docker.
 - Registro, login, hashing bcrypt, JWT y guards de roles para `identity`.
 - Obtención del tipo de cambio USD/PEN desde el proveedor externo, persistencia
   de snapshots y caché en memoria con TTL.
@@ -30,8 +29,7 @@ El repositorio actualmente incluye:
 - Documentación Swagger para los endpoints HTTP implementados.
 - Configuración de TypeScript, ESLint y Prettier.
 
-Todavía no están implementados: frontend, Container Registry, despliegue de
-producción y CD para entornos distintos de QA.
+Todavía no están implementados: frontend, Container Registry, CD y despliegue.
 
 ## Requisitos
 
@@ -172,7 +170,5 @@ implementación están documentados en los siguientes recursos.
 - [ADR 0009: Solicitudes e historial de transacciones](./docs/adr/0009-transactions-conversion-history.md)
 - [ADR 0010: Conexión MongoDB e índices de consulta](./docs/adr/0010-mongodb-connection-and-indexes.md)
 - [ADR 0011: Precisión monetaria y seguridad de sesiones](./docs/adr/0011-monetary-precision-and-session-security.md)
-- [ADR 0012: Despliegue QA en Cloud Run](./docs/adr/0012-qa-cloud-run-deployment.md)
-- [Guía de despliegue QA en Cloud Run](./docs/deployment-qa.md)
 - [Diagrama de contexto del sistema](./docs/diagrams/system-context.md)
 - [Diagrama de límites de los módulos](./docs/diagrams/module-boundaries.md)
