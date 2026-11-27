@@ -1,10 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UserRole } from '../../../identity/domain/enums/user-role.enum';
 import { Transaction } from '../../domain/entities/transaction.entity';
-import { InvalidTransactionDateRangeError } from '../../domain/errors/transaction.errors';
+import {
+  InvalidTransactionDateRangeError,
+  InvalidTransactionPaginationError,
+} from '../../domain/errors/transaction.errors';
 import {
   TRANSACTION_REPOSITORY,
   TransactionHistoryCriteria,
+  TransactionHistoryPage,
 } from '../ports/transaction-repository.port';
 import type { TransactionRepository } from '../ports/transaction-repository.port';
 
@@ -18,6 +22,16 @@ export interface GetTransactionHistoryCommand {
   startDate: Date;
   endDate: Date;
   requestedUserId?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface PaginatedTransactionHistory {
+  transactions: Transaction[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
 }
 
 @Injectable()
@@ -27,16 +41,39 @@ export class GetTransactionHistoryUseCase {
     private readonly transactionRepository: TransactionRepository,
   ) {}
 
-  async execute(command: GetTransactionHistoryCommand): Promise<Transaction[]> {
+  async execute(
+    command: GetTransactionHistoryCommand,
+  ): Promise<PaginatedTransactionHistory> {
     this.validateDateRange(command.startDate, command.endDate);
+    const page = command.page ?? 1;
+    const pageSize = command.pageSize ?? 12;
+    this.validatePagination(page, pageSize);
 
     const criteria: TransactionHistoryCriteria = {
       userId: this.resolveTargetUserId(command),
       startDate: command.startDate,
       endDate: command.endDate,
+      page,
+      pageSize,
     };
 
-    return this.transactionRepository.findHistory(criteria);
+    const result = await this.transactionRepository.findHistory(criteria);
+
+    return this.toPaginatedResult(result, page, pageSize);
+  }
+
+  private toPaginatedResult(
+    result: TransactionHistoryPage,
+    page: number,
+    pageSize: number,
+  ): PaginatedTransactionHistory {
+    return {
+      transactions: result.transactions,
+      page,
+      pageSize,
+      total: result.total,
+      totalPages: Math.ceil(result.total / pageSize),
+    };
   }
 
   private resolveTargetUserId(command: GetTransactionHistoryCommand): string {
@@ -54,6 +91,16 @@ export class GetTransactionHistoryUseCase {
       startDate.getTime() > endDate.getTime()
     ) {
       throw new InvalidTransactionDateRangeError();
+    }
+  }
+
+  private validatePagination(page: number, pageSize: number): void {
+    if (!Number.isInteger(page) || page < 1) {
+      throw new InvalidTransactionPaginationError();
+    }
+
+    if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100) {
+      throw new InvalidTransactionPaginationError();
     }
   }
 }

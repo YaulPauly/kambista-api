@@ -11,3 +11,10 @@ export class InvalidTransactionDateRangeError extends Error {
     this.name = InvalidTransactionDateRangeError.name;
   }
 }
+
+export class InvalidTransactionPaginationError extends Error {
+  constructor() {
+    super('La paginación solicitada no es válida.');
+    this.name = InvalidTransactionPaginationError.name;
+  }
+}

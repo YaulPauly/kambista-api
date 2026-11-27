@@ -15,8 +15,8 @@ describe('Transaction', () => {
     });
 
     expect(transaction.pair.value).toBe('USD/PEN');
-    expect(transaction.amount).toBe(100);
-    expect(transaction.convertedAmount).toBe(373.9);
+    expect(transaction.amount.toNumber()).toBe(100);
+    expect(transaction.convertedAmount.toNumber()).toBe(373.9);
   });
 
   it('rejects a non-positive amount', () => {

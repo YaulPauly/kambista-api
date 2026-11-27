@@ -13,7 +13,8 @@ class FakeTransactionRepository implements TransactionRepository {
     return Promise.resolve(transaction);
   };
 
-  findHistory = (): Promise<Transaction[]> => Promise.resolve([]);
+  findHistory = (): Promise<{ transactions: Transaction[]; total: number }> =>
+    Promise.resolve({ transactions: [], total: 0 });
 }
 
 function createExchangeRate(): ExchangeRate {
@@ -47,8 +48,8 @@ describe('CreateTransactionUseCase', () => {
       amount: 100,
     });
 
-    expect(result.convertedAmount).toBe(373.9);
-    expect(result.appliedExchangeRate).toBe(3.739);
+    expect(result.convertedAmount.toNumber()).toBe(373.9);
+    expect(result.appliedExchangeRate.toNumber()).toBe(3.739);
     expect(repository.savedTransaction).toBe(result);
     expect(execute).toHaveBeenCalledWith({
       baseCurrency: 'USD',
@@ -74,7 +75,7 @@ describe('CreateTransactionUseCase', () => {
     });
 
     expect(result.pair.value).toBe('PEN/USD');
-    expect(result.convertedAmount).toBe(28.65);
-    expect(result.appliedExchangeRate).toBe(3.49);
+    expect(result.convertedAmount.toNumber()).toBe(28.65);
+    expect(result.appliedExchangeRate.toNumber()).toBe(3.49);
   });
 });

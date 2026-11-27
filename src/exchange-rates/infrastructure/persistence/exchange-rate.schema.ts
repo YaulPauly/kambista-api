@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 
 @Schema({ collection: 'exchange_rates', versionKey: false })
 export class ExchangeRatePersistenceModel {
@@ -12,11 +12,11 @@ export class ExchangeRatePersistenceModel {
   @Prop({ required: true, trim: true })
   quoteCurrency!: string;
 
-  @Prop({ required: true, min: 0, type: Number })
-  purchaseRate!: number;
+  @Prop({ required: true, type: SchemaTypes.Decimal128 })
+  purchaseRate!: Types.Decimal128;
 
-  @Prop({ required: true, min: 0, type: Number })
-  saleRate!: number;
+  @Prop({ required: true, type: SchemaTypes.Decimal128 })
+  saleRate!: Types.Decimal128;
 
   @Prop({ required: true, trim: true })
   source!: string;
@@ -24,7 +24,7 @@ export class ExchangeRatePersistenceModel {
   @Prop({ required: true, type: Date })
   effectiveDate!: Date;
 
-  @Prop({ required: true, index: true, type: Date })
+  @Prop({ required: true, type: Date })
   fetchedAt!: Date;
 }
 

@@ -21,10 +21,8 @@ describe('ExchangeCalculator', () => {
       exchangeRate,
     );
 
-    expect(result).toEqual({
-      convertedAmount: 373.9,
-      appliedExchangeRate: 3.739,
-    });
+    expect(result.convertedAmount.toNumber()).toBe(373.9);
+    expect(result.appliedExchangeRate.toNumber()).toBe(3.739);
   });
 
   it('uses the purchase rate for PEN to USD', () => {
@@ -34,10 +32,8 @@ describe('ExchangeCalculator', () => {
       exchangeRate,
     );
 
-    expect(result).toEqual({
-      convertedAmount: 28.65,
-      appliedExchangeRate: 3.49,
-    });
+    expect(result.convertedAmount.toNumber()).toBe(28.65);
+    expect(result.appliedExchangeRate.toNumber()).toBe(3.49);
   });
 
   it('rejects amounts with more than two decimal places', () => {

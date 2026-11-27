@@ -23,6 +23,15 @@ export class MongooseUserRepository implements UserRepository {
     return document ? this.toDomain(document) : null;
   }
 
+  async findById(id: string): Promise<User | null> {
+    const document = await this.userModel
+      .findById(id)
+      .select('+passwordHash')
+      .exec();
+
+    return document ? this.toDomain(document) : null;
+  }
+
   async save(user: User): Promise<User> {
     try {
       const document = await this.userModel.create({

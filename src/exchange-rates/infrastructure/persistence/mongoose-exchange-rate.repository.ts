@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
+import Decimal from 'decimal.js';
 import { CurrencyPair } from '../../../currencies/domain/value-objects/currency-pair.value-object';
 import { ExchangeRateRepository } from '../../application/ports/exchange-rate-repository.port';
 import { ExchangeRate } from '../../domain/entities/exchange-rate.entity';
@@ -33,8 +34,10 @@ export class MongooseExchangeRateRepository implements ExchangeRateRepository {
       _id: exchangeRate.id,
       baseCurrency: exchangeRate.pair.baseCurrency.value,
       quoteCurrency: exchangeRate.pair.quoteCurrency.value,
-      purchaseRate: exchangeRate.purchaseRate,
-      saleRate: exchangeRate.saleRate,
+      purchaseRate: Types.Decimal128.fromString(
+        exchangeRate.purchaseRate.toString(),
+      ),
+      saleRate: Types.Decimal128.fromString(exchangeRate.saleRate.toString()),
       source: exchangeRate.source,
       effectiveDate: exchangeRate.effectiveDate,
       fetchedAt: exchangeRate.fetchedAt,
@@ -47,8 +50,8 @@ export class MongooseExchangeRateRepository implements ExchangeRateRepository {
     return ExchangeRate.rehydrate({
       id: document._id.toString(),
       pair: CurrencyPair.create(document.baseCurrency, document.quoteCurrency),
-      purchaseRate: document.purchaseRate,
-      saleRate: document.saleRate,
+      purchaseRate: new Decimal(document.purchaseRate.toString()),
+      saleRate: new Decimal(document.saleRate.toString()),
       source: document.source,
       effectiveDate: document.effectiveDate,
       fetchedAt: document.fetchedAt,

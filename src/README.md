@@ -32,7 +32,8 @@ src/
 ├── shared/
 └── platform/
     ├── config/
-    └── http/
+    ├── http/
+    └── persistence/
 ```
 
 Los archivos del arranque de la aplicación permanecen en la raíz de `src/`.

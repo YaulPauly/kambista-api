@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -77,8 +78,8 @@ export class SunatExchangeRateProvider implements ExchangeRateProvider {
       return {
         baseCurrency: payload.moneda,
         quoteCurrency: 'PEN',
-        purchaseRate: payload.compra,
-        saleRate: payload.venta,
+        purchaseRate: new Decimal(payload.compra),
+        saleRate: new Decimal(payload.venta),
         source: payload.origen,
         effectiveDate,
       };

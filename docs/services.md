@@ -71,6 +71,7 @@ Respuesta exitosa: `200 OK`
 ```json
 {
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "usuario": {
     "id": "65328d68-32d5-4881-b381-4ff2c4e1dec0",
     "nombre": "Juan Pérez",
@@ -91,6 +92,28 @@ Errores principales:
 
 - `400 Bad Request`: request inválido.
 - `401 Unauthorized`: las credenciales no son válidas.
+
+Los intentos repetidos de login se limitan mediante `LOGIN_RATE_LIMIT` y
+`LOGIN_RATE_WINDOW_MS`. Cuando se supera el límite, la API responde `429 Too
+Many Requests`.
+
+### Renovar tokens
+
+```http
+POST /v1/auth/refresh
+Content-Type: application/json
+```
+
+Request:
+
+```json
+{
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+La respuesta contiene un nuevo `access_token` y un nuevo `refresh_token`. El
+refresh token anterior se revoca y no puede reutilizarse.
 
 ## Transactions
 
@@ -159,20 +182,35 @@ Authorization: Bearer <admin_access_token>
 Un usuario normal siempre consulta únicamente su propio historial, aunque envíe
 un `userId` diferente.
 
+La paginación es opcional. Usa `page=1` y `pageSize=12` por defecto; `pageSize`
+acepta como máximo 100 elementos.
+
+```http
+GET /v1/transactions/history?startDate=2026-11-01&endDate=2026-11-30&page=1&pageSize=12
+```
+
 Respuesta exitosa: `200 OK`
 
 ```json
-[
-  {
-    "id": "65328d68-32d5-4881-b381-4ff2c4e1dec0",
-    "monedaOrigen": "USD",
-    "monedaDestino": "PEN",
-    "monto": 100,
-    "montoCambiado": 373.9,
-    "tipoCambio": 3.739,
-    "fecha": "2026-11-26T15:00:00.000Z"
+{
+  "data": [
+    {
+      "id": "65328d68-32d5-4881-b381-4ff2c4e1dec0",
+      "monedaOrigen": "USD",
+      "monedaDestino": "PEN",
+      "monto": 100,
+      "montoCambiado": 373.9,
+      "tipoCambio": 3.739,
+      "fecha": "2026-11-26T15:00:00.000Z"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "pageSize": 12,
+    "total": 1,
+    "totalPages": 1
   }
-]
+}
 ```
 
 ## Pendiente
@@ -181,6 +219,5 @@ El módulo `exchange-rates` ya obtiene y persiste internamente el tipo de cambio
 USD/PEN, y mantiene una caché en memoria para evitar consultar MongoDB en cada
 lectura. Todavía no expone un endpoint HTTP público.
 
-Todavía no existen endpoints HTTP para monedas ni refresh tokens. La
-paginación del historial y las funcionalidades extra se documentarán cuando se
-implementen.
+Todavía no existe un endpoint HTTP público para el catálogo de monedas ni para
+consultar directamente los tipos de cambio.

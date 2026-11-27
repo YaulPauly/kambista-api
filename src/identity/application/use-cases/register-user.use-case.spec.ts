@@ -21,6 +21,8 @@ class FakeUserRepository implements UserRepository {
     );
   };
 
+  findById = (): Promise<User | null> => Promise.resolve(null);
+
   save = (user: User): Promise<User> => {
     this.saveCalls.push(user);
     this.users.push(user);

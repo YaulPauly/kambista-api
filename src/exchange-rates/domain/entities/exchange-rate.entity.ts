@@ -1,30 +1,39 @@
+import Decimal from 'decimal.js';
 import { CurrencyPair } from '../../../currencies/domain/value-objects/currency-pair.value-object';
 import { InvalidExchangeRateError } from '../errors/exchange-rate.errors';
 
 interface ExchangeRateProperties {
   id: string;
   pair: CurrencyPair;
-  purchaseRate: number;
-  saleRate: number;
+  purchaseRate: Decimal;
+  saleRate: Decimal;
   source: string;
   effectiveDate: Date;
   fetchedAt: Date;
 }
 
+interface ExchangeRateCreationProperties extends Omit<
+  ExchangeRateProperties,
+  'purchaseRate' | 'saleRate'
+> {
+  purchaseRate: Decimal.Value;
+  saleRate: Decimal.Value;
+}
+
 export class ExchangeRate {
   private constructor(private readonly properties: ExchangeRateProperties) {}
 
-  static create(properties: ExchangeRateProperties): ExchangeRate {
-    if (
-      !Number.isFinite(properties.purchaseRate) ||
-      properties.purchaseRate <= 0
-    ) {
+  static create(properties: ExchangeRateCreationProperties): ExchangeRate {
+    const purchaseRate = new Decimal(properties.purchaseRate);
+    const saleRate = new Decimal(properties.saleRate);
+
+    if (!purchaseRate.isFinite() || purchaseRate.lte(0)) {
       throw new InvalidExchangeRateError(
         'El tipo de cambio de compra debe ser mayor que cero.',
       );
     }
 
-    if (!Number.isFinite(properties.saleRate) || properties.saleRate <= 0) {
+    if (!saleRate.isFinite() || saleRate.lte(0)) {
       throw new InvalidExchangeRateError(
         'El tipo de cambio de venta debe ser mayor que cero.',
       );
@@ -50,6 +59,8 @@ export class ExchangeRate {
 
     return new ExchangeRate({
       ...properties,
+      purchaseRate,
+      saleRate,
       source: properties.source.trim(),
     });
   }
@@ -66,11 +77,11 @@ export class ExchangeRate {
     return this.properties.pair;
   }
 
-  get purchaseRate(): number {
+  get purchaseRate(): Decimal {
     return this.properties.purchaseRate;
   }
 
-  get saleRate(): number {
+  get saleRate(): Decimal {
     return this.properties.saleRate;
   }
 

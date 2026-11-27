@@ -1,19 +1,21 @@
+import Decimal from 'decimal.js';
 import { CurrencyPair } from '../../../currencies/domain/value-objects/currency-pair.value-object';
 import { ExchangeRate } from '../../../exchange-rates/domain/entities/exchange-rate.entity';
 import { InvalidTransactionError } from '../errors/transaction.errors';
 
 export interface ExchangeCalculationResult {
-  convertedAmount: number;
-  appliedExchangeRate: number;
+  convertedAmount: Decimal;
+  appliedExchangeRate: Decimal;
 }
 
 export class ExchangeCalculator {
   static calculate(
-    amount: number,
+    amount: Decimal.Value,
     requestedPair: CurrencyPair,
     exchangeRate: ExchangeRate,
   ): ExchangeCalculationResult {
-    this.validateAmount(amount);
+    const amountDecimal = new Decimal(amount);
+    this.validateAmount(amountDecimal);
 
     const isDirectPair = requestedPair.value === exchangeRate.pair.value;
     const isInversePair =
@@ -30,36 +32,40 @@ export class ExchangeCalculator {
 
     if (isDirectPair) {
       return {
-        convertedAmount: this.roundMoney(amount * exchangeRate.saleRate),
+        convertedAmount: this.roundMoney(
+          amountDecimal.mul(exchangeRate.saleRate),
+        ),
         appliedExchangeRate: exchangeRate.saleRate,
       };
     }
 
     return {
-      convertedAmount: this.roundMoney(amount / exchangeRate.purchaseRate),
+      convertedAmount: this.roundMoney(
+        amountDecimal.div(exchangeRate.purchaseRate),
+      ),
       appliedExchangeRate: exchangeRate.purchaseRate,
     };
   }
 
-  private static validateAmount(amount: number): void {
-    if (!Number.isFinite(amount) || amount <= 0) {
+  private static validateAmount(amount: Decimal): void {
+    if (!amount.isFinite() || amount.lte(0)) {
       throw new InvalidTransactionError('El monto debe ser mayor que cero.');
     }
 
-    if (amount > 9_999_999.99) {
+    if (amount.gt(new Decimal('9999999.99'))) {
       throw new InvalidTransactionError(
         'El monto no puede superar 9,999,999.99.',
       );
     }
 
-    if (Number(amount.toFixed(2)) !== amount) {
+    if (amount.decimalPlaces() > 2) {
       throw new InvalidTransactionError(
         'El monto puede tener como máximo dos decimales.',
       );
     }
   }
 
-  private static roundMoney(value: number): number {
-    return Math.round((value + Number.EPSILON) * 100) / 100;
+  private static roundMoney(value: Decimal): Decimal {
+    return value.toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
   }
 }
