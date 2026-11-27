@@ -1,8 +1,10 @@
+import Decimal from 'decimal.js';
+
 export interface ExchangeRateProviderResult {
   baseCurrency: string;
   quoteCurrency: string;
-  purchaseRate: number;
-  saleRate: number;
+  purchaseRate: Decimal;
+  saleRate: Decimal;
   source: string;
   effectiveDate: Date;
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   TransactionHistoryCriteria,
+  TransactionHistoryPage,
   TransactionRepository,
 } from '../../application/ports/transaction-repository.port';
 import { Transaction } from '../../domain/entities/transaction.entity';
@@ -14,7 +15,9 @@ export class InMemoryTransactionRepository implements TransactionRepository {
     return Promise.resolve(transaction);
   }
 
-  findHistory(criteria: TransactionHistoryCriteria): Promise<Transaction[]> {
+  findHistory(
+    criteria: TransactionHistoryCriteria,
+  ): Promise<TransactionHistoryPage> {
     const matchingTransactions = this.transactions
       .filter(
         (transaction) =>
@@ -26,6 +29,14 @@ export class InMemoryTransactionRepository implements TransactionRepository {
         (left, right) => right.createdAt.getTime() - left.createdAt.getTime(),
       );
 
-    return Promise.resolve(matchingTransactions);
+    const startIndex = (criteria.page - 1) * criteria.pageSize;
+
+    return Promise.resolve({
+      transactions: matchingTransactions.slice(
+        startIndex,
+        startIndex + criteria.pageSize,
+      ),
+      total: matchingTransactions.length,
+    });
   }
 }

@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js';
 import { CurrencyPair } from '../../../currencies/domain/value-objects/currency-pair.value-object';
 import { InvalidTransactionError } from '../errors/transaction.errors';
 
@@ -5,16 +6,29 @@ interface TransactionProperties {
   id: string;
   userId: string;
   pair: CurrencyPair;
-  amount: number;
-  convertedAmount: number;
-  appliedExchangeRate: number;
+  amount: Decimal;
+  convertedAmount: Decimal;
+  appliedExchangeRate: Decimal;
   createdAt: Date;
+}
+
+interface TransactionCreationProperties extends Omit<
+  TransactionProperties,
+  'amount' | 'convertedAmount' | 'appliedExchangeRate'
+> {
+  amount: Decimal.Value;
+  convertedAmount: Decimal.Value;
+  appliedExchangeRate: Decimal.Value;
 }
 
 export class Transaction {
   private constructor(private readonly properties: TransactionProperties) {}
 
-  static create(properties: TransactionProperties): Transaction {
+  static create(properties: TransactionCreationProperties): Transaction {
+    const amount = new Decimal(properties.amount);
+    const convertedAmount = new Decimal(properties.convertedAmount);
+    const appliedExchangeRate = new Decimal(properties.appliedExchangeRate);
+
     if (!properties.id.trim()) {
       throw new InvalidTransactionError(
         'El identificador de la transacción es obligatorio.',
@@ -27,23 +41,17 @@ export class Transaction {
       );
     }
 
-    if (!Number.isFinite(properties.amount) || properties.amount <= 0) {
+    if (!amount.isFinite() || amount.lte(0)) {
       throw new InvalidTransactionError('El monto debe ser mayor que cero.');
     }
 
-    if (
-      !Number.isFinite(properties.convertedAmount) ||
-      properties.convertedAmount <= 0
-    ) {
+    if (!convertedAmount.isFinite() || convertedAmount.lte(0)) {
       throw new InvalidTransactionError(
         'El monto cambiado debe ser mayor que cero.',
       );
     }
 
-    if (
-      !Number.isFinite(properties.appliedExchangeRate) ||
-      properties.appliedExchangeRate <= 0
-    ) {
+    if (!appliedExchangeRate.isFinite() || appliedExchangeRate.lte(0)) {
       throw new InvalidTransactionError(
         'El tipo de cambio aplicado debe ser mayor que cero.',
       );
@@ -55,7 +63,12 @@ export class Transaction {
       );
     }
 
-    return new Transaction(properties);
+    return new Transaction({
+      ...properties,
+      amount,
+      convertedAmount,
+      appliedExchangeRate,
+    });
   }
 
   static rehydrate(properties: TransactionProperties): Transaction {
@@ -74,15 +87,15 @@ export class Transaction {
     return this.properties.pair;
   }
 
-  get amount(): number {
+  get amount(): Decimal {
     return this.properties.amount;
   }
 
-  get convertedAmount(): number {
+  get convertedAmount(): Decimal {
     return this.properties.convertedAmount;
   }
 
-  get appliedExchangeRate(): number {
+  get appliedExchangeRate(): Decimal {
     return this.properties.appliedExchangeRate;
   }
 

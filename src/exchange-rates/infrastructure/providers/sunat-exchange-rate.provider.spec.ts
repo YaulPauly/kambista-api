@@ -33,8 +33,8 @@ describe('SunatExchangeRateProvider', () => {
     expect(result).toMatchObject({
       baseCurrency: 'USD',
       quoteCurrency: 'PEN',
-      purchaseRate: 3.49,
-      saleRate: 3.496,
+      purchaseRate: new Decimal('3.49'),
+      saleRate: new Decimal('3.496'),
       source: 'SUNAT',
     });
     expect(fetchMock).toHaveBeenCalledWith(
@@ -64,3 +64,4 @@ describe('SunatExchangeRateProvider', () => {
     );
   });
 });
+import Decimal from 'decimal.js';

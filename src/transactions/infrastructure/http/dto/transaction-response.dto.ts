@@ -22,3 +22,25 @@ export class TransactionResponseDto {
   @ApiProperty({ example: '2026-11-26T15:00:00.000Z' })
   fecha!: string;
 }
+
+export class TransactionHistoryMetaDto {
+  @ApiProperty({ example: 1 })
+  page!: number;
+
+  @ApiProperty({ example: 12 })
+  pageSize!: number;
+
+  @ApiProperty({ example: 25 })
+  total!: number;
+
+  @ApiProperty({ example: 3 })
+  totalPages!: number;
+}
+
+export class TransactionHistoryResponseDto {
+  @ApiProperty({ type: [TransactionResponseDto] })
+  data!: TransactionResponseDto[];
+
+  @ApiProperty({ type: TransactionHistoryMetaDto })
+  meta!: TransactionHistoryMetaDto;
+}

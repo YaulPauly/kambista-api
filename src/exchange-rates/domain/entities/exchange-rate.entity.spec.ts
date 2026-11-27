@@ -19,8 +19,8 @@ describe('ExchangeRate', () => {
     });
 
     expect(exchangeRate.pair.value).toBe('USD/PEN');
-    expect(exchangeRate.purchaseRate).toBe(3.49);
-    expect(exchangeRate.saleRate).toBe(3.496);
+    expect(exchangeRate.purchaseRate).toEqual(new Decimal('3.49'));
+    expect(exchangeRate.saleRate).toEqual(new Decimal('3.496'));
     expect(exchangeRate.source).toBe('SUNAT');
   });
 
@@ -38,3 +38,4 @@ describe('ExchangeRate', () => {
     ).toThrow(InvalidExchangeRateError);
   });
 });
+import Decimal from 'decimal.js';

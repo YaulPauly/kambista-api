@@ -12,6 +12,7 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -37,10 +38,14 @@ import { Transaction } from '../../domain/entities/transaction.entity';
 import {
   InvalidTransactionDateRangeError,
   InvalidTransactionError,
+  InvalidTransactionPaginationError,
 } from '../../domain/errors/transaction.errors';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { TransactionHistoryQueryDto } from './dto/transaction-history-query.dto';
-import { TransactionResponseDto } from './dto/transaction-response.dto';
+import {
+  TransactionHistoryResponseDto,
+  TransactionResponseDto,
+} from './dto/transaction-response.dto';
 
 type AuthenticatedTransactionRequest = Request & {
   user?: AuthTokenPayload;
@@ -50,6 +55,7 @@ type AuthenticatedTransactionRequest = Request & {
 @ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard)
 @Controller('v1/transactions')
+@SkipThrottle()
 export class TransactionsController {
   constructor(
     private readonly createTransactionUseCase: CreateTransactionUseCase,
@@ -94,13 +100,13 @@ export class TransactionsController {
     required: false,
     description: 'Disponible para administradores.',
   })
-  @ApiOkResponse({ type: [TransactionResponseDto] })
+  @ApiOkResponse({ type: TransactionHistoryResponseDto })
   @ApiBadRequestResponse({ description: 'El filtro no es válido.' })
   @ApiUnauthorizedResponse({ description: 'Se requiere autenticación.' })
   async history(
     @Req() request: AuthenticatedTransactionRequest,
     @Query() query: TransactionHistoryQueryDto,
-  ): Promise<TransactionResponseDto[]> {
+  ): Promise<TransactionHistoryResponseDto> {
     const user = this.getAuthenticatedUser(request);
 
     try {
@@ -112,9 +118,21 @@ export class TransactionsController {
         startDate: this.toStartOfDay(query.startDate),
         endDate: this.toEndOfDay(query.endDate),
         requestedUserId: query.userId,
+        page: query.page,
+        pageSize: query.pageSize,
       });
 
-      return transactions.map((transaction) => this.toResponse(transaction));
+      return {
+        data: transactions.transactions.map((transaction) =>
+          this.toResponse(transaction),
+        ),
+        meta: {
+          page: transactions.page,
+          pageSize: transactions.pageSize,
+          total: transactions.total,
+          totalPages: transactions.totalPages,
+        },
+      };
     } catch (error: unknown) {
       this.handleTransactionError(error);
     }
@@ -135,9 +153,9 @@ export class TransactionsController {
       id: transaction.id,
       monedaOrigen: transaction.pair.baseCurrency.value,
       monedaDestino: transaction.pair.quoteCurrency.value,
-      monto: transaction.amount,
-      montoCambiado: transaction.convertedAmount,
-      tipoCambio: transaction.appliedExchangeRate,
+      monto: transaction.amount.toNumber(),
+      montoCambiado: transaction.convertedAmount.toNumber(),
+      tipoCambio: transaction.appliedExchangeRate.toNumber(),
       fecha: transaction.createdAt.toISOString(),
     };
   }
@@ -155,7 +173,8 @@ export class TransactionsController {
       error instanceof SameCurrencyPairError ||
       error instanceof UnsupportedCurrencyError ||
       error instanceof InvalidTransactionError ||
-      error instanceof InvalidTransactionDateRangeError
+      error instanceof InvalidTransactionDateRangeError ||
+      error instanceof InvalidTransactionPaginationError
     ) {
       throw new BadRequestException(error.message);
     }

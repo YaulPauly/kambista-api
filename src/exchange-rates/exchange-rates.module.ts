@@ -43,7 +43,6 @@ export class ExchangeRatesModule {
 
     if (useMongoPersistence) {
       imports.push(
-        MongooseModule.forRoot(process.env.MONGODB_URI as string),
         MongooseModule.forFeature([
           {
             name: ExchangeRatePersistenceModel.name,

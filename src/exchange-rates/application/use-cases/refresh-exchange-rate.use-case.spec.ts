@@ -12,8 +12,8 @@ class FakeProvider implements ExchangeRateProvider {
   readonly result: ExchangeRateProviderResult = {
     baseCurrency: 'USD',
     quoteCurrency: 'PEN',
-    purchaseRate: 3.49,
-    saleRate: 3.496,
+    purchaseRate: new Decimal('3.49'),
+    saleRate: new Decimal('3.496'),
     source: 'SUNAT',
     effectiveDate: new Date('2026-11-26T05:00:00.000Z'),
   };
@@ -70,3 +70,4 @@ describe('RefreshExchangeRateUseCase', () => {
     );
   });
 });
+import Decimal from 'decimal.js';
