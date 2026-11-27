@@ -33,6 +33,10 @@ que un administrador pueda consultar las operaciones de cualquier usuario.
   ownership se mantiene en el caso de uso para que no dependa del controller.
 - El repository de MongoDB tiene un índice compuesto por `userId` y
   `createdAt` para soportar el filtro y el orden descendente del historial.
+- El historial utiliza paginación con `page=1` y `pageSize=12` por defecto; el
+  tamaño máximo permitido es 100.
+- La respuesta del historial utiliza `{ data, meta }` para que el contrato
+  pueda crecer sin romper la lista de transacciones.
 - Los tests utilizan repositories en memoria y cubren cálculo, autorización,
   validaciones y contratos HTTP E2E.
 
@@ -43,5 +47,7 @@ consulten proveedores o persistencia directamente. El cálculo actual está
 limitado a las monedas soportadas por `currencies` y utiliza la precisión
 monetaria requerida por la prueba.
 
-La consulta del historial no tiene paginación todavía. Se mantiene como una
-mejora posterior porque la prueba solicita un array filtrado por fechas.
+La respuesta del historial deja de ser un array plano y ahora incluye
+metadatos de paginación. Las pruebas E2E actuales continúan usando repositorios
+en memoria; la persistencia real se verifica mediante Docker e integración con
+MongoDB.
