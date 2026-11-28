@@ -44,7 +44,7 @@ export class MongooseTransactionRepository implements TransactionRepository {
     criteria: TransactionHistoryCriteria,
   ): Promise<TransactionHistoryPage> {
     const filter = {
-      userId: criteria.userId,
+      ...(criteria.userId ? { userId: criteria.userId } : {}),
       createdAt: {
         $gte: criteria.startDate,
         $lte: criteria.endDate,

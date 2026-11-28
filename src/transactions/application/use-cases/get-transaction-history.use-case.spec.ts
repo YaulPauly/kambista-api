@@ -54,6 +54,19 @@ describe('GetTransactionHistoryUseCase', () => {
     expect(repository.receivedCriteria?.userId).toBe('another-user-id');
   });
 
+  it('allows an admin to query all users history without a user filter', async () => {
+    const repository = new FakeTransactionRepository();
+    const useCase = new GetTransactionHistoryUseCase(repository);
+
+    await useCase.execute({
+      actor: { userId: 'admin-id', role: UserRole.ADMIN },
+      startDate: new Date('2026-11-01T00:00:00.000Z'),
+      endDate: new Date('2026-11-30T23:59:59.999Z'),
+    });
+
+    expect(repository.receivedCriteria?.userId).toBeUndefined();
+  });
+
   it('uses the default pagination and returns metadata', async () => {
     const repository = new FakeTransactionRepository();
     const useCase = new GetTransactionHistoryUseCase(repository);

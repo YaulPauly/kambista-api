@@ -115,6 +115,42 @@ Request:
 La respuesta contiene un nuevo `access_token` y un nuevo `refresh_token`. El
 refresh token anterior se revoca y no puede reutilizarse.
 
+## Exchange rates
+
+Todos los endpoints de este módulo requieren:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+### Consultar el tipo de cambio actual
+
+```http
+GET /v1/exchange-rates?monedaOrigen=USD&monedaDestino=PEN
+Authorization: Bearer <access_token>
+```
+
+La API consulta primero la caché en memoria. Si no encuentra un valor vigente,
+consulta el último valor persistido en MongoDB y actualiza la caché.
+
+Respuesta exitosa: `200 OK`
+
+```json
+{
+  "monedaOrigen": "USD",
+  "monedaDestino": "PEN",
+  "compra": 3.733,
+  "venta": 3.739,
+  "fuente": "SUNAT",
+  "fechaEfectiva": "2026-11-26T00:00:00.000Z",
+  "consultadoEn": "2026-11-26T15:00:00.000Z"
+}
+```
+
+El scheduler continúa actualizando el tipo de cambio desde SUNAT cada 30
+segundos por defecto. Si no existe información disponible, la API responde
+`503 Service Unavailable`.
+
 ## Transactions
 
 Todos los endpoints de este módulo requieren:
@@ -179,6 +215,14 @@ GET /v1/transactions/history?startDate=2026-11-01&endDate=2026-11-30&userId=<USE
 Authorization: Bearer <admin_access_token>
 ```
 
+Si el administrador omite `userId`, consulta el historial de todos los usuarios
+dentro del rango de fechas indicado:
+
+```http
+GET /v1/transactions/history?startDate=2026-11-01&endDate=2026-11-30&page=1&pageSize=12
+Authorization: Bearer <admin_access_token>
+```
+
 Un usuario normal siempre consulta únicamente su propio historial, aunque envíe
 un `userId` diferente.
 
@@ -215,9 +259,4 @@ Respuesta exitosa: `200 OK`
 
 ## Pendiente
 
-El módulo `exchange-rates` ya obtiene y persiste internamente el tipo de cambio
-USD/PEN, y mantiene una caché en memoria para evitar consultar MongoDB en cada
-lectura. Todavía no expone un endpoint HTTP público.
-
-Todavía no existe un endpoint HTTP público para el catálogo de monedas ni para
-consultar directamente los tipos de cambio.
+Todavía no existe un endpoint HTTP público para el catálogo de monedas.

@@ -21,7 +21,7 @@ export class InMemoryTransactionRepository implements TransactionRepository {
     const matchingTransactions = this.transactions
       .filter(
         (transaction) =>
-          transaction.userId === criteria.userId &&
+          (!criteria.userId || transaction.userId === criteria.userId) &&
           transaction.createdAt >= criteria.startDate &&
           transaction.createdAt <= criteria.endDate,
       )

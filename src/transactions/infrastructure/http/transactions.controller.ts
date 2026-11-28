@@ -98,7 +98,8 @@ export class TransactionsController {
   @ApiQuery({
     name: 'userId',
     required: false,
-    description: 'Disponible para administradores.',
+    description:
+      'Disponible para administradores. Si se omite, consulta todos los usuarios.',
   })
   @ApiOkResponse({ type: TransactionHistoryResponseDto })
   @ApiBadRequestResponse({ description: 'El filtro no es válido.' })

@@ -76,8 +76,10 @@ export class GetTransactionHistoryUseCase {
     };
   }
 
-  private resolveTargetUserId(command: GetTransactionHistoryCommand): string {
-    if (command.actor.role === UserRole.ADMIN && command.requestedUserId) {
+  private resolveTargetUserId(
+    command: GetTransactionHistoryCommand,
+  ): string | undefined {
+    if (command.actor.role === UserRole.ADMIN) {
       return command.requestedUserId;
     }
 

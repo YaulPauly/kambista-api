@@ -1,7 +1,7 @@
 import { Transaction } from '../../domain/entities/transaction.entity';
 
 export interface TransactionHistoryCriteria {
-  userId: string;
+  userId?: string;
   startDate: Date;
   endDate: Date;
   page: number;

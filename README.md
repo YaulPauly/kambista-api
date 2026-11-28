@@ -19,6 +19,8 @@ El repositorio actualmente incluye:
 - Registro, login, hashing bcrypt, JWT y guards de roles para `identity`.
 - Obtención del tipo de cambio USD/PEN desde el proveedor externo, persistencia
   de snapshots y caché en memoria con TTL.
+- Endpoint autenticado para consultar el tipo de cambio actual usando la caché y
+  MongoDB como fallback.
 - Actualización automática del tipo de cambio al iniciar la aplicación y cada
   30 segundos por defecto.
 - Creación de solicitudes de cambio USD/PEN y PEN/USD.

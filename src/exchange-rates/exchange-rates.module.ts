@@ -1,6 +1,7 @@
 import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { IdentityModule } from '../identity/identity.module';
 import {
   EXCHANGE_RATE_CACHE,
   ExchangeRateCache,
@@ -18,13 +19,17 @@ import {
 } from './infrastructure/persistence/exchange-rate.schema';
 import { InMemoryExchangeRateCache } from './infrastructure/cache/in-memory-exchange-rate.cache';
 import { SunatExchangeRateProvider } from './infrastructure/providers/sunat-exchange-rate.provider';
+import { ExchangeRatesController } from './infrastructure/http/exchange-rates.controller';
 
 @Module({})
 export class ExchangeRatesModule {
   static register(): DynamicModule {
     const useMongoPersistence =
       process.env.NODE_ENV !== 'test' && Boolean(process.env.MONGODB_URI);
-    const imports: DynamicModule['imports'] = [ConfigModule];
+    const imports: DynamicModule['imports'] = [
+      ConfigModule,
+      IdentityModule.register(),
+    ];
     const persistenceProviders: Provider[] = useMongoPersistence
       ? [
           MongooseExchangeRateRepository,
@@ -78,6 +83,7 @@ export class ExchangeRatesModule {
     return {
       module: ExchangeRatesModule,
       imports,
+      controllers: [ExchangeRatesController],
       providers,
       exports: [GetLatestExchangeRateUseCase],
     };

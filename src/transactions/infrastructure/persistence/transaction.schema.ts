@@ -36,3 +36,4 @@ export const TransactionPersistenceSchema = SchemaFactory.createForClass(
 );
 
 TransactionPersistenceSchema.index({ userId: 1, createdAt: -1 });
+TransactionPersistenceSchema.index({ createdAt: -1 });

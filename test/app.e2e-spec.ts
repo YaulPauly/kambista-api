@@ -225,6 +225,26 @@ describe('AppController (e2e)', () => {
       .expect(401);
   });
 
+  it('returns the latest exchange rate for an authenticated user', async () => {
+    const session = await registerAndLogin('exchange-rate-user@example.com');
+
+    const response = await request(app.getHttpServer())
+      .get('/v1/exchange-rates')
+      .set('Authorization', `Bearer ${session.accessToken}`)
+      .query({ monedaOrigen: 'USD', monedaDestino: 'PEN' })
+      .expect(200);
+
+    expect(response.body).toMatchObject({
+      monedaOrigen: 'USD',
+      monedaDestino: 'PEN',
+      compra: 3.49,
+      venta: 3.739,
+      fuente: 'SUNAT',
+    });
+    expect(response.body).toHaveProperty('fechaEfectiva');
+    expect(response.body).toHaveProperty('consultadoEn');
+  });
+
   it('creates transactions in both directions and returns the user history', async () => {
     const session = await registerAndLogin('transaction@example.com');
 
@@ -339,6 +359,63 @@ describe('AppController (e2e)', () => {
     const historyBody = history.body as unknown as TransactionHistoryResponse;
     expect(historyBody.data).toHaveLength(1);
     expect(historyBody.data[0]?.monto).toBe(50);
+  });
+
+  it('allows an admin to query all users history without a user filter', async () => {
+    const firstSession = await registerAndLogin(
+      'all-history-first@example.com',
+    );
+    const secondSession = await registerAndLogin(
+      'all-history-second@example.com',
+    );
+
+    await request(app.getHttpServer())
+      .post('/v1/transactions')
+      .set('Authorization', `Bearer ${firstSession.accessToken}`)
+      .send({
+        monedaOrigen: 'USD',
+        monedaDestino: 'PEN',
+        monto: 50,
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .post('/v1/transactions')
+      .set('Authorization', `Bearer ${secondSession.accessToken}`)
+      .send({
+        monedaOrigen: 'PEN',
+        monedaDestino: 'USD',
+        monto: 80,
+      })
+      .expect(201);
+
+    const tokenService = app.get<TokenService>(TOKEN_SERVICE, {
+      strict: false,
+    });
+    const adminToken = await tokenService.sign({
+      sub: 'admin-all-history-test-id',
+      name: 'Test Administrator',
+      email: 'admin-all-history-test@example.com',
+      role: UserRole.ADMIN,
+    });
+
+    const history = await request(app.getHttpServer())
+      .get('/v1/transactions/history')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .query({
+        startDate: '2026-11-01',
+        endDate: '2030-11-30',
+      })
+      .expect(200);
+
+    const historyBody = history.body as unknown as TransactionHistoryResponse;
+    expect(historyBody.data).toHaveLength(2);
+    expect(historyBody.meta).toMatchObject({
+      page: 1,
+      pageSize: 12,
+      total: 2,
+      totalPages: 1,
+    });
   });
 
   it('rejects invalid transaction data', async () => {
